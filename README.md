@@ -13,7 +13,7 @@ When only using LTE data, one can represent low-b data with the O(b) cumulant ex
 For higher b-values (up to ~b=2500 ms/mm^2), one can represent DWIs with the O(b^2) cumulant expansion (which is DKI).
 
 ## Multiple b-tensors
-If we consider multiple b-tensor shapes as shown in the figure below ($\beta$ parametrizes the b-tensor shape):
+If we consider multiple b-tensor shapes as shown in the figure below (β parametrizes the b-tensor shape):
 <img width="1206" alt="axSymB" src="https://user-images.githubusercontent.com/54751227/197211877-1d589475-8835-4bcd-861a-35ee3f9a297f.png">
 We see that for O(b) signals, the representation does not change (still DTI).
 However, for O(b^2) a new tensor shows up (diffusion covariance tensor, C). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
