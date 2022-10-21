@@ -4,12 +4,19 @@ This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all n
 <br>
 
 ## Overview: The cumulant expansion in diffusion MRI
+<img width="1690" alt="CumulantExpansion" src="https://user-images.githubusercontent.com/54751227/197211845-30f7d79d-2165-4b85-8b46-ae9aa05dadb0.png">
+
+
 
 ## LTE data
+When only using LTE data, one can represent low-b data with the O(b) cumulant expansion (which is DTI).
+For higher b-values (up to ~b=2500 ms/mm^2), one can represent DWIs with the O(b^2) cumulant expansion (which is DKI).
 
 ## Multiple b-tensors
-
-
+If we consider multiple b-tensor shapes as shown in the figure below ($\beta$ parametrizes the b-tensor shape):
+<img width="1206" alt="axSymB" src="https://user-images.githubusercontent.com/54751227/197211877-1d589475-8835-4bcd-861a-35ee3f9a297f.png">
+We see that for O(b) signals, the representation does not change (still DTI).
+However, for O(b^2) a new tensor shows up (diffusion covariance tensor, C). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
 
 
 
