@@ -81,6 +81,9 @@ classdef RICE
             %       type can be 'minimalDTI' and then tensor_elem has:   [D00] (1 elem)
             %                                      RICE has: D0
             %                                      maps has: md 
+            %       type can be 'fullDTI' and then tensor_elem has:   [D00 D2m] (6 elem)
+            %                                      RICE has: D0 D2
+            %                                      maps has: md ad rd fa (these are axial symmetry approximations) 
             %       type can be 'minimalDKI' and then tensor_elem has:   [D00 D2m S00] (7 elem)
             %                                      RICE has: D0 D2 S0
             %                                      maps has: md fa mw
@@ -89,10 +92,10 @@ classdef RICE
             %                                      maps has: md mw 
             %       type can be 'fullDKI' and then tensor_elem has:   [D00 D2m S00 S2m S4m] (21 elem)
             %                                      RICE has: D0 D2 S0 S2 S4
-            %                                      maps has: md fa mw rw aw (these are axial symmetry approximations) 
+            %                                      maps has: md ad rd fa mw rw aw (these are axial symmetry approximations) 
             %       type can be 'minimalRICE' and then tensor_elem has:  [D00 D2m S00 S2m A00(rank2)] (14 elem)
             %                                      RICE has: D0 D2 S0 S2 A0
-            %                                      maps has: md ad rd fa mw ufa 
+            %                                      maps has: md ad rd fa mw ufa  ](these are axial symmetry approximations)
             %       type can be 'fullRICE' and then tensor_elem has:  [D00 D2m S00 S2m S4m A00(rank2) A2m(rank2)] (27 elem)
             %                                      RICE has: D0 D2 S0 S2 S4 A0 A2
             %                                      maps has: md ad rd fa mw aw rw ufa d0d2m (these are axial symmetry approximations) 
@@ -193,26 +196,24 @@ classdef RICE
             if strcmp(type,'minimalDTI')
                 r=1; % 1 element is fitted: D00
                 X=[ones(size(b)), -Bij*Y2(:,1)];
+            elseif strcmp(type,'fullDTI')
+                r=6; % 2 elements are fitted: D00 D2m
+                X=[ones(size(b)), -Bij*Y2];
             elseif strcmp(type,'minimalDKI_iso')
                 r=2; % 2 elements are fitted: D00 S00
                 X=[ones(size(b)), -Bij*Y2(:,1), 1/2*BijBkl*Y4(:,1)];
-                flag_S0=1;
             elseif strcmp(type,'minimalDKI')
                 r=12; % 7 elements are fitted: D00 D2m S00 (S2m are fitted and discarded)
                 X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4(:,1:6)];
-                flag_S0=1; flag_D2=1;
             elseif strcmp(type,'fullDKI')
                 r=21; % 21 elements are fitted: D00 D2m S00 S2m S4m
                 X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4];
-                flag_S0=1; flag_D2=1; flag_S2=1; flag_S4=1;
             elseif strcmp(type,'minimalRICE')
                 r=13; % 8 elements are fitted: D00 D2m S00 A00(rank2) (S2m are fitted and discarded)
                 X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4(:,1:6), 1/12*BijBkl_epsilon_term*Y2(:,1)];
-                flag_S0=1; flag_D2=1; flag_S2=1; flag_A0=1;
             elseif strcmp(type,'fullRICE')
                 r=27; % 27 elements are fitted: D00 D2m S00 S2m S4m A00(rank2) A2m(rank2)
                 X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4, 1/12*BijBkl_epsilon_term*Y2];
-                flag_S0=1; flag_D2=1; flag_S2=1; flag_S4=1; flag_A0=1; flag_A2=1;
             else
                 error('Choose an appropriate signal representation')
             end    
@@ -247,7 +248,17 @@ classdef RICE
             DIFF_maps.md=D0;
         
             % If other approaches, then extract other parameters
-            if strcmp(type,'minimalDKI_iso')
+            if strcmp(type,'fullDTI')
+                D2m=tensor_elems(:,:,:,2:6);
+                D2=C2*sqrt(sum(D2m.^2,4));
+                RICE_maps.D2=D2;
+                DIFF_maps.md=D0;
+                DIFF_maps.ad=D0+D2;
+                DIFF_maps.rd=D0-1/2*D2;
+                fa_sq=3*D2.^2./(4*D0.^2+2*D2.^2);
+                fa_sq(fa_sq(:)<0)=0;
+                DIFF_maps.fa=sqrt(fa_sq);
+            elseif strcmp(type,'minimalDKI_iso')
                 S00=tensor_elems(:,:,:,2);
                 S0=C0*abs(S00);
                 RICE_maps.S0=S0;
@@ -268,7 +279,7 @@ classdef RICE
                 fa_sq(fa_sq(:)<0)=0;
                 DIFF_maps.fa=sqrt(fa_sq);
                 W0=3*S0./D0.^2;
-                maps.mw=W0;
+                DIFF_maps.mw=W0;
             elseif strcmp(type,'fullDKI')
                 D2m=tensor_elems(:,:,:,2:6);
                 D2=C2*sqrt(sum(D2m.^2,4));
@@ -317,8 +328,8 @@ classdef RICE
                 W0=3*S0./D0.^2;
                 DIFF_maps.mw=W0;
                 % Other maps
-                D0sq=D0.^2+5/9*S0+1/6*A0;
-                D2sq=D2.^2+20/9*S0-5/6*A0;
+                D0sq = D0.^2 + (2*A0)/9 + (5*S0)/9;
+                D2sq = -(10*A0)/9+D2.^2+(20*S0)/9;
                 ufa_sq=3*D2sq./(4*D0.^2+2*D2sq);
                 ufa_sq(ufa_sq(:)<0)=0;
                 DIFF_maps.ufa=sqrt(ufa_sq);
@@ -355,12 +366,12 @@ classdef RICE
                 DIFF_maps.aw=(W0+W2+W4).*D0.^2./(D0+D2).^2;
                 DIFF_maps.rw=(W0-1/2*W2+3/8*W4).*D0.^2./(D0-1/2*D2).^2;
                 % Other maps
-                D0sq=D0.^2+5/9*S0+1/6*A0;
-                D2sq=D2.^2+20/9*S0-5/6*A0;
+                D0sq = D0.^2 + (2*A0)/9 + (5*S0)/9;
+                D2sq = -(10*A0)/9+D2.^2+(20*S0)/9;
                 ufa_sq=3*D2sq./(4*D0.^2+2*D2sq);
                 ufa_sq(ufa_sq(:)<0)=0;
                 DIFF_maps.ufa=sqrt(ufa_sq);
-                DIFF_maps.d0d2m=sqrt(sum((7/(6*C0)*S2m-2/(3*C0)*A2m+D00.*D2m).^2,4));
+                DIFF_maps.d0d2m=sqrt(sum((D00.*D2m+7/(22*C0)*S2m-1/(11*C0)*A2m).^2,4));
             end    
         end
         % =================================================================
