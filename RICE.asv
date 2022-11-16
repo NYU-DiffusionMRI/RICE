@@ -740,8 +740,8 @@ classdef RICE
              end
         end
         % =================================================================
-        function Ylm_n = evaluate_even_SH(dirs, Lmax, CS_phase)
-            % Ylm_n = get_even_SH(dirs,Lmax,CS_phase)
+        function Ylm_n = evaluate_even_SH(dirs, Lmax, CSphase)
+            % Ylm_n = evaluate_even_SH(dirs, Lmax, CSphase)
             %
             % if CS_phase=1, then the definition uses the Condon-Shortley phase factor
             % of (-1)^m. Default is CS_phase=0 (so this factor is ommited)
@@ -762,7 +762,7 @@ classdef RICE
                 m_all=[m_all -l(ii):l(ii)];
             end
             K_lm=sqrt((2*l_all+1)./(4*pi) .* factorial(l_all-abs(m_all))./factorial(l_all+abs(m_all)));
-            if nargin==2 || isempty(CS_phase) || ~exist('CS_phase','var') || ~CS_phase
+            if nargin==2 || isempty(CSphase) || ~exist('CS_phase','var') || ~CSphase
                 extra_factor=ones(size(K_lm));
                 extra_factor(m_all~=0)=sqrt(2);
             else
@@ -815,88 +815,217 @@ classdef RICE
             C2=sqrt(5/(4*pi));
             C4=sqrt(9/(4*pi));   
 
-            % Transform Slm into Wlm (they are proportional)
             md=C0*abs(dt(:,:,:,1));
+            % Transform Slm into Wlm (they are proportional)
             dt_stf=RICE.vectorize(cat(4,dt(:,:,:,1:6),3*dt(:,:,:,7:21)./md.^2),mask);
-            MDSq=(C0*dt_stf(1,:)).^2;  
+            DKI_maps = RICE.get_DKI_maps_from_4D_DW_tensors(dt_stf,mask,'STF',[],1,CSphase);
 
-            % Compute Diffusion and Kurtosis rotational invariants
-            D00=dt(:,:,:,1);
-            D0=C0*abs(D00);
-            D2m=dt(:,:,:,2:6);
-            D2=C2*sqrt(sum(D2m.^2,4));
-            S00=dt(:,:,:,7);
-            S0=C0*abs(S00);
-            S2m=dt(:,:,:,8:12);
-            S2=C2*sqrt(sum(S2m.^2,4));
-            S4m=dt(:,:,:,13:21);
-            S4=C4*sqrt(sum(S4m.^2,4));   
-            W0=3*S0./D0.^2;
-            W2=3*S2./D0.^2;
-            W4=3*S4./D0.^2;
-
-            % Get DTI scalars without projecting on fiber basis
-            DKI_maps.md=D0;
-            DKI_maps.ad_axsym=D0+D2;
-            DKI_maps.rd_axsym=D0-1/2*D2;
-            fa_sq=3*D2.^2./(4*D0.^2+2*D2.^2);
-            fa_sq(fa_sq(:)<0)=0;
-            DKI_maps.fa=sqrt(fa_sq);
-        
-            % Get DKI scalars without projecting on fiber basis
-            DKI_maps.mw=W0;
-            DKI_maps.aw_axsym=(W0+W2+W4).*D0.^2./(D0+D2).^2;
-            DKI_maps.rw_axsym=(W0-1/2*W2+3/8*W4).*D0.^2./(D0-1/2*D2).^2;
-        
-            % Getting MK
-            dirs256 = RICE.get256dirs();
-            Y_LM_matrix256 = RICE.evaluate_even_SH(dirs256,4,CSphase);
-            adc = Y_LM_matrix256(:,1:6)*dt_stf(1:6,:);
-            akc = (Y_LM_matrix256*dt_stf(7:21,:)).*MDSq./(adc.^2);
-            DKI_maps.mk=RICE.vectorize(mean(akc,1),mask);
-
-            % Computing AW and RW with their exact definitions an all K maps
-            Y00=eye(3)/sqrt(4*pi);
-            Y2m2=[0,0.546274215296040,0;0.546274215296040,0,0;0,0,0];
-            Y2m1=(-1)^(CSphase)*[0,0,0;0,0,-0.546274215296040;0,-0.546274215296040,0];
-            Y20= [-0.315391565252520,0,0;0,-0.315391565252520,0;0,0,0.630783130505040];
-            Y21= (-1)^(CSphase)*[0,0,-0.546274215296040;0,0,0;-0.546274215296040,0,0];
-            Y22= [0.546274215296040,0,0;0,-0.546274215296040,0;0,0,0];
-            wpar=0*dt_stf(1, :);
-            wperp=0*dt_stf(1, :);
-            rk=0*dt_stf(1, :);
-            e1=0*dt_stf(1:3, :);
-            lambda=0*dt_stf(1:3, :);
-            parfor ii = 1:size(dt_stf,2)
-                dt_current=dt_stf(:,ii);
-                Dlm=dt_current(1:6);
-                Wlm=dt_current(7:21);
-                DT = Dlm(1)*Y00 + Dlm(2)*Y2m2 + Dlm(3)*Y2m1 + Dlm(4)*Y20 + Dlm(5)*Y21 + Dlm(6)*Y22;
-                [eigvec, eigval] = eigs(DT);
-                e1(:, ii) = eigvec(:, 1);
-                lambda(:,ii) = diag(eigval);
-                % Getting AW(AK), RW, and RK
-                Ylm_e1 = RICE.evaluate_even_SH(eigvec(:, 1),4,CSphase);
-                wpar(ii)=Ylm_e1*Wlm;
-                dirs_radial = RICE.radialsampling(eigvec(:, 1), 100);
-                Ylm_radial = RICE.evaluate_even_SH(dirs_radial,4,CSphase);
-                D_n_radial = Ylm_radial(:,1:6)*Dlm;
-                W_n_radial=Ylm_radial*Wlm;
-                wperp(ii)=mean(W_n_radial,1);
-        %         rk(ii)=mean(Ylm_radial(:,1:15)*wlm(1:15,ii)*MDSq(ii)/((l2(ii)/2+l3(ii)/2)^2));
-                rk(ii)=MDSq(ii)*mean(W_n_radial./D_n_radial.^2,1);
+% % %             MDSq=(C0*dt_stf(1,:)).^2;   
+% % %             
+% % % 
+% % % %             IMGUI(cat(4,maps.ad_axsym/3,maps.ad/3,maps.rd_axsym,maps.rd,maps.aw_axsym/2,maps.aw/2,maps.ak/2,maps.rw_axsym/3,maps.rw/3,maps.rk/3),[0 1])
+% % % 
+% % % 
+% % % %             dt_stf=RICE.vectorize(dt(:,:,:,1:21),mask);
+% % % %             % Transform Slm into Wlm (they are proportional)
+% % % %             MDSq=(C0*dt_stf(1,:)).^2;
+% % % %             dt_stf(7:21,:)=3*dt_stf(7:21,:)./repmat(MDSq,15,1);
+% % %             
+% % %             % Compute Diffusion and Kurtosis rotational invariants
+% % %             D00=dt(:,:,:,1);
+% % %             D0=C0*abs(D00);
+% % %             D2m=dt(:,:,:,2:6);
+% % %             D2=C2*sqrt(sum(D2m.^2,4));
+% % %             S00=dt(:,:,:,7);
+% % %             S0=C0*abs(S00);
+% % %             S2m=dt(:,:,:,8:12);
+% % %             S2=C2*sqrt(sum(S2m.^2,4));
+% % %             S4m=dt(:,:,:,13:21);
+% % %             S4=C4*sqrt(sum(S4m.^2,4));   
+% % %             W0=3*S0./D0.^2;
+% % %             W2=3*S2./D0.^2;
+% % %             W4=3*S4./D0.^2;
+% % % 
+% % %             % Get DTI scalars without projecting on fiber basis
+% % %             DKI_maps.md=D0;
+% % %             DKI_maps.ad_axsym=D0+D2;
+% % %             DKI_maps.rd_axsym=D0-1/2*D2;
+% % %             fa_sq=3*D2.^2./(4*D0.^2+2*D2.^2);
+% % %             fa_sq(fa_sq(:)<0)=0;
+% % %             DKI_maps.fa=sqrt(fa_sq);
+% % %         
+% % %             % Get DKI scalars without projecting on fiber basis
+% % %             DKI_maps.mw=W0;
+% % %             DKI_maps.aw_axsym=(W0+W2+W4).*D0.^2./(D0+D2).^2;
+% % %             DKI_maps.rw_axsym=(W0-1/2*W2+3/8*W4).*D0.^2./(D0-1/2*D2).^2;
+% % %         
+% % %             % Getting MK
+% % %             dirs256 = RICE.get256dirs();
+% % %             Y_LM_matrix256 = RICE.evaluate_even_SH(dirs256,4,CSphase);
+% % %             adc = Y_LM_matrix256(:,1:6)*dt_stf(1:6,:);
+% % %             akc = (Y_LM_matrix256*dt_stf(7:21,:)).*MDSq./(adc.^2);
+% % %             DKI_maps.mk=RICE.vectorize(mean(akc,1),mask);
+% % % 
+% % %             % Computing AW and RW with their exact definitions an all K maps
+% % %             Y00=eye(3)/sqrt(4*pi);
+% % %             Y2m2=[0,0.546274215296040,0;0.546274215296040,0,0;0,0,0];
+% % %             Y2m1=(-1)^(CSphase)*[0,0,0;0,0,-0.546274215296040;0,-0.546274215296040,0];
+% % %             Y20= [-0.315391565252520,0,0;0,-0.315391565252520,0;0,0,0.630783130505040];
+% % %             Y21= (-1)^(CSphase)*[0,0,-0.546274215296040;0,0,0;-0.546274215296040,0,0];
+% % %             Y22= [0.546274215296040,0,0;0,-0.546274215296040,0;0,0,0];
+% % %             wpar=0*dt_stf(1, :);
+% % %             wperp=0*dt_stf(1, :);
+% % %             rk=0*dt_stf(1, :);
+% % %             e1=0*dt_stf(1:3, :);
+% % %             lambda=0*dt_stf(1:3, :);
+% % %             parfor ii = 1:size(dt_stf,2)
+% % %                 dt_current=dt_stf(:,ii);
+% % %                 Dlm=dt_current(1:6);
+% % %                 Wlm=dt_current(7:21);
+% % %                 DT = Dlm(1)*Y00 + Dlm(2)*Y2m2 + Dlm(3)*Y2m1 + Dlm(4)*Y20 + Dlm(5)*Y21 + Dlm(6)*Y22;
+% % %                 [eigvec, eigval] = eigs(DT);
+% % %                 e1(:, ii) = eigvec(:, 1);
+% % %                 lambda(:,ii) = diag(eigval);
+% % %                 % Getting AW(AK), RW, and RK
+% % %                 Ylm_e1 = RICE.evaluate_even_SH(eigvec(:, 1),4,CSphase);
+% % %                 wpar(ii)=Ylm_e1*Wlm;
+% % %                 dirs_radial = RICE.radialsampling(eigvec(:, 1), 100);
+% % %                 Ylm_radial = RICE.evaluate_even_SH(dirs_radial,4,CSphase);
+% % %                 D_n_radial = Ylm_radial(:,1:6)*Dlm;
+% % %                 W_n_radial=Ylm_radial*Wlm;
+% % %                 wperp(ii)=mean(W_n_radial,1);
+% % %         %         rk(ii)=mean(Ylm_radial(:,1:15)*wlm(1:15,ii)*MDSq(ii)/((l2(ii)/2+l3(ii)/2)^2));
+% % %                 rk(ii)=MDSq(ii)*mean(W_n_radial./D_n_radial.^2,1);
+% % %             end
+% % %             ad = RICE.vectorize(lambda(1,:), mask);
+% % %             rd = RICE.vectorize(sum(lambda(2:3,:),1)/2, mask);
+% % %             wpar = RICE.vectorize(wpar, mask);
+% % %             wperp = RICE.vectorize(wperp, mask);
+% % % 
+% % % %             IMGUI(cat(4,wpar,W0+W2+W4),[0 3])
+% % % %             IMGUI(cat(4,wperp,W0-1/2*W2+3/8*W4),[0 3])
+% % % 
+% % %             DKI_maps.rd=rd;
+% % %             DKI_maps.ad=ad;
+% % %             DKI_maps.rw=wperp.*D0.^2./rd.^2;
+% % %             DKI_maps.aw=wpar.*D0.^2./ad.^2;
+% % %             DKI_maps.rk=RICE.vectorize(rk,mask);
+% % %             DKI_maps.ak=DKI_maps.aw; % They are the same
+% % %             DKI_maps.fe=RICE.vectorize(e1,mask);
+        end
+        % =================================================================
+        function maps = get_DKI_maps_from_4D_DW_tensors(dt,mask,type,order,computeKandfiberbasis,CSphase)
+            % maps = get_DKI_maps_from_4D_DW_tensors(dt,mask,type,order,computeKandfiberbasis,CSphase)
+            %
+            % maps contains:  D0 D2 W0 W2 W4
+            %                 fa md ad_axsym rd_axsym mw aw_axsym rw_axsym
+            %                 rd ad rw aw mk rk ak
+            %
+            % By: Santiago Coelho (07/09/2021) Santiago.Coelho@nyulangone.org
+            [ x, y, z, ~] = size(dt);
+            if ~exist('mask','var') || isempty(mask)
+                mask = true(x, y, z);
             end
-            ad = RICE.vectorize(lambda(1,:), mask);
-            rd = RICE.vectorize(sum(lambda(2:3,:),1)/2, mask);
-            wpar = RICE.vectorize(wpar, mask);
-            wperp = RICE.vectorize(wperp, mask);
-            DKI_maps.rd=rd;
-            DKI_maps.ad=ad;
-            DKI_maps.rw=wperp.*D0.^2./rd.^2;
-            DKI_maps.aw=wpar.*D0.^2./ad.^2;
-            DKI_maps.rk=RICE.vectorize(rk,mask);
-            DKI_maps.ak=DKI_maps.aw; % They are the same
-            DKI_maps.fe=RICE.vectorize(e1,mask);
+            if ~exist('type','var') || isempty(type)
+                type='STF';order='SC';
+            end
+            if ~exist('CSphase','var') || isempty(CSphase)
+                CSphase=1;
+            end
+            if ~exist('order','var') || isempty(order)
+                order='SC';
+            end
+            if ~exist('computeKandfiberbasis','var') || isempty(computeKandfiberbasis)
+                computeKandfiberbasis=0;
+            end
+            dt=double(dt);
+            dt(~isfinite(dt(:)))=0;
+%             if strcmp(type,'cart')
+%                 d_stf = wrapper_STF_decomposition_backandforth(dt(:,:,:,1:6),'cart2STF',mask,order);
+%                 w_stf = wrapper_STF_decomposition_backandforth(dt(:,:,:,7:21),'cart2STF',mask,order);
+%                 dt=cat(4,d_stf,w_stf);
+%             end
+            dt_stf=RICE.vectorize(dt,mask);
+            MDSq = dt_stf(1,:).^2/(4*pi);
+            Dlm=RICE.vectorize(dt_stf(1:6,:), mask);
+            Wlm=RICE.vectorize(dt_stf(7:21,:), mask);
+            % Compute Diffusion and Kurtosis rotational invariants
+            D0 = Dlm(:,:,:,1)/sqrt(4*pi);
+            D2=sqrt(sum(Dlm(:,:,:,2:6).^2,4))/sqrt(5*4*pi);
+            W0 = Wlm(:,:,:,1)/sqrt(4*pi);
+            W2=sqrt(sum(Wlm(:,:,:,2:6).^2,4))/sqrt(5*4*pi);
+            W4=sqrt(sum(Wlm(:,:,:,7:15).^2,4))/sqrt(9*4*pi);
+            fa=sqrt(75*D2.^2./(4*D0.^2+50*D2.^2));
+            
+            maps.fa=fa;
+            maps.md=D0;
+            maps.ad_axsym=D0+5*D2;
+            maps.rd_axsym=D0-5/2*D2;
+            maps.mw=W0;
+            maps.aw_axsym=(W0+5*W2+9*W4).*D0.^2./(D0+5*D2).^2;
+            maps.rw_axsym=(W0-5/2*W2+27/8*W4).*D0.^2./(D0-5/2*D2).^2;
+            
+            % Computing AW and RW with their exact definitions an all K maps
+                Y2m2=[0,0.546274215296040,0;0.546274215296040,0,0;0,0,0];
+                Y2m1=(-1)^(CSphase)*[0,0,0;0,0,-0.546274215296040;0,-0.546274215296040,0];
+                Y20= [-0.315391565252520,0,0;0,-0.315391565252520,0;0,0,0.630783130505040];
+                Y21= (-1)^(CSphase)*[0,0,-0.546274215296040;0,0,0;-0.546274215296040,0,0];
+                Y22= [0.546274215296040,0,0;0,-0.546274215296040,0;0,0,0];
+                wlm=dt_stf(7:21,:);
+                aw=0*dt_stf(1, :);
+                rw=0*dt_stf(1, :);
+                ak=0*dt_stf(1, :);
+                rk=0*dt_stf(1, :);
+                e1=0*dt_stf(1:3, :);
+                l1=0*dt_stf(1, :);
+                l2=0*dt_stf(1, :);
+                l3=0*dt_stf(1, :);
+                Nvoxels=size(dt_stf,2);
+                parfor ii = 1:Nvoxels
+                    DT = dt_stf(1,ii)*eye(3)/sqrt(4*pi)+(dt_stf(2, ii)*Y2m2+dt_stf(3, ii)*Y2m1+dt_stf(4, ii)*Y20+dt_stf(5, ii)*Y21+dt_stf(6, ii)*Y22);
+                    DT = reshape(DT, [3 3]);
+                    [eigvec, eigval] = eigs(DT);
+                    e1(:, ii) = eigvec(:, 1);
+                    eigval = diag(eigval);
+                    l1(ii) = eigval(1);
+                    l2(ii) = eigval(2);
+                    l3(ii) = eigval(3);
+            
+                    % Getting AW and RW
+                    Ylm_e1 = get_even_SH(eigvec(:, 1),4,CSphase);
+                    aw(ii)=Ylm_e1(1,1:15)*wlm(1:15,ii);
+                    dirs_radial = RICE.radialsampling(eigvec(:, 1), 100);
+                    Ylm_radial = get_even_SH(dirs_radial,4,CSphase);
+                    rw(ii)=mean(Ylm_radial(:,1:15)*wlm(1:15,ii));
+            
+                    % Getting AK and RK
+                    ak(ii)=Ylm_e1(1,1:15)*wlm(1:15,ii)*MDSq(ii)/(l1(ii)^2);
+            %         rk(ii)=mean(Ylm_radial(:,1:15)*wlm(1:15,ii)*MDSq(ii)/((l2(ii)/2+l3(ii)/2)^2));
+                    rds = Ylm_radial(:,1:6)*dt_stf(1:6,ii);
+                    rk(ii)=mean(Ylm_radial(:,1:15)*wlm(1:15,ii)*MDSq(ii)./rds.^2);
+                end
+                rd = RICE.vectorize((l2+l3)/2, mask);
+                ad = RICE.vectorize(l1, mask);
+                aw = RICE.vectorize(aw, mask);
+                rw = RICE.vectorize(rw, mask);
+                aw=aw.*D0.^2./ad.^2;
+                rw=rw.*D0.^2./rd.^2;
+                % Getting MK
+                dirs2 = RICE.get256dirs();
+                Y_LM_matrix2 = get_even_SH(dirs2,4,CSphase);
+                Y00=Y_LM_matrix2(:,1);
+                Y2m_2=Y_LM_matrix2(:,2:6);
+                Y4m_2=Y_LM_matrix2(:,7:15);
+                adc = [Y00 Y2m_2]*dt_stf(1:6,:);
+                akc = [Y00 Y2m_2 Y4m_2]*(dt_stf(7:21,:)).*MDSq./(adc.^2);
+                maps.rd=rd;
+                maps.ad=ad;
+                maps.rw=rw;
+                maps.aw=aw;
+                maps.mk=RICE.vectorize(mean(akc),mask);
+                maps.rk=RICE.vectorize(rk,mask);
+                maps.ak=RICE.vectorize(ak,mask);
+                maps.fe=RICE.vectorize(e1,mask);
         end
         % =================================================================
         function [s, mask] = vectorize(S, mask)
