@@ -6,21 +6,18 @@ The toolbox also allows the parameter estimation for minimal DKI and minimal RIC
 <br>
 
 ## Overview: The cumulant expansion in diffusion MRI
-<img width="1507" alt="Ob2_cumulant_expansion_RICE" src="https://user-images.githubusercontent.com/54751227/203182555-6f38be40-8364-4f36-8183-8e6cf07dc96e.png">
-
+<img width="1604" alt="Ob2_cumulant_expansion_RICE" src="https://user-images.githubusercontent.com/54751227/203182843-a1097e1d-9bd8-4a88-a60e-99f0d56a5104.png">
 
 
 ## LTE data
-When only using LTE data, one can represent low-b data with the O(b) cumulant expansion (which is DTI).
-For higher b-values (up to ~b=2500 ms/mm^2), one can represent DWIs with the O(b^2) cumulant expansion (which is DKI).
+When only using LTE data, one can represent low-b data with the O(b) cumulant expansion as shown in Eq. (1). This is simply DTI, and it can represent DWIs up to ~b=1200 ms/mm^2.
+For higher b-values (up to ~b=2500 ms/mm^2), one can represent DWIs with the O(b^2) cumulant expansion shown in Eq. (1). This is DKI.
 
 ## Multiple b-tensors
 If we consider multiple b-tensor shapes as shown in the figure below (β parametrizes the b-tensor shape):
 <img width="1206" alt="axSymB" src="https://user-images.githubusercontent.com/54751227/197211877-1d589475-8835-4bcd-861a-35ee3f9a297f.png">
-We see that for O(b) signals, the representation does not change (still DTI).
-However, for O(b^2) a new tensor shows up (diffusion covariance tensor, C). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
-
-
+We see that for O(b) signals (Eq. (3) ), the representation does not change (still DTI).
+However, for O(b^2) a new tensor shows up: the diffusion covariance tensor, C, see Eq. (4). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
 
 ## RICE Authors
 - [Santiago Coelho](https://santiagocoelho.github.io/)
