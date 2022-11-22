@@ -1,7 +1,7 @@
 # RICE toolbox (Rotational Invariants of the Cumulant Expansion)
 This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors[^note]. Check [our recent paper](https://arxiv.org/pdf/2202.02399.pdf) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general. Below we provide instructions on how to run the toolbox. See the [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script that performs the parameter estimation in an [example dataset](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/).
 
-The toolbox also allows the parameter estimation for minimal DKI and minimal RICE protocols[^note].
+The toolbox also allows the parameter estimation for minimal DKI and minimal RICE protocols proposed in [^note].
 
 <br>
 
@@ -11,12 +11,12 @@ The toolbox also allows the parameter estimation for minimal DKI and minimal RIC
 
 ## LTE data
 For conventional dMRI data, linear tensor encoding (LTE), one can represent low-b data with the O(b) cumulant expansion as shown in Eq. (1). This is simply DTI, and it can represent DWIs up to ~b=1200 ms/mm^2.
-For higher b-values (up to ~b=2500 ms/mm^2), one can represent the DWIs with the O(b^2) cumulant expansion shown in Eq. (1). This is DKI.
+For higher b-values (up to ~b=2500 ms/mm^2), one can represent the DWIs with the O(b^2) cumulant expansion shown in Eq. (2). This is DKI.
 
 ## Multiple b-tensors
 If we consider multiple b-tensor shapes (axially symmetric) as shown in the figure below, where β parametrizes the b-tensor shape. Most common examples are: β=1 for LTE (B has only one nonzero eigenvalue), β=0 for STE (B has 3 equal nonzero eigenvalues), and β=-1/2 for PTE (B has 2 equal nonzero eigenvalues).
 <img width="1206" alt="axSymB" src="https://user-images.githubusercontent.com/54751227/197211877-1d589475-8835-4bcd-861a-35ee3f9a297f.png">
-We see that for O(b) signals (Eq. (3) ), the representation does not change (still DTI).
+We see that for O(b) signals (Eq. (3) ). This representation is still DTI.
 However, for O(b^2) a new tensor shows up: the diffusion covariance tensor, C, see Eq. (4). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
 
 ## Example use cases
