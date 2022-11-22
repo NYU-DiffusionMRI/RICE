@@ -20,9 +20,9 @@ We see that for O(b) signals (Eq. (3) ), the representation does not change (sti
 However, for O(b^2) a new tensor shows up: the diffusion covariance tensor, C, see Eq. (4). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
 
 ## Example use cases
-The [example_RICE](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script shows some examples on how to run the full RICE fitting and also the minimal DKI and minimal RICE ones. We also provide example datasets for these, [check this link](https://cai2r.net/).
+The [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script shows some examples on how to run the full RICE fitting and also the minimal DKI and minimal RICE ones. We provide example datasets for these, [check this link](https://cai2r.net/).
 
-Briefly, the usage is:
+Briefly, the basic usage of the code is as follows:
 ```
 % RICE toolbox parameter estimation example
 
@@ -37,7 +37,7 @@ DKI_maps = RICE.get_DKI_fiberBasis_maps_from_4D_DW_tensors(tensor_elems, mask, C
 ```
 See the help in RICE.fit and RICE.get_DKI_fiberBasis_maps_from_4D_DW_tensors for more details.
 
-The following options are available in RICE.fit for the 'type' argument: (the parameter count does not include s0)
+The following options are available in RICE.fit for the input argument 'type': (parameter count does not include s0)
 - 'minimalDTI': only MD is fit (1 elem, [D00])
 - 'fullDTI': full diffusion tensor is fit (6 elem, [D00 D2m])
 - 'minimalDKI': full diffusion tensor and MK are fit (7 elem, [D00 D2m S00])
