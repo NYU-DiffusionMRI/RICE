@@ -1,7 +1,7 @@
 # RICE toolbox (Rotational Invariants of the Cumulant Expansion)
-This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors. Check [our recent paper](https://arxiv.org/pdf/2202.02399.pdf) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general. Below we provide instructions on how to run the toolbox. See the '[example.m](https://github.com/NYU-DiffusionMRI/RICE)' script that performs the parameter estimation in an [example dataset](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/).
+This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors[^note]. Check [our recent paper](https://arxiv.org/pdf/2202.02399.pdf) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general. Below we provide instructions on how to run the toolbox. See the [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script that performs the parameter estimation in an [example dataset](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/).
 
-The toolbox also allows the parameter estimation for minimal DKI and minimal RICE protocols.
+The toolbox also allows the parameter estimation for minimal DKI and minimal RICE protocols[^note].
 
 <br>
 
@@ -91,7 +91,6 @@ A [US patent](link to patent) contains some of the related developments.
 % - Coelho, S., Fieremans, E., Novikov, D.S., 2022. RICE Arxiv info.
 ```
 
-
 [^note]:
-    Please cite these works if you use the SMI toolbox in your publication:
+    Please cite these works if you use the RICE toolbox in your publication:
     - Coelho, S., Fieremans, E., Novikov, D.S., 2022. RICE Arxiv info
