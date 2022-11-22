@@ -6,7 +6,7 @@ The toolbox also allows the parameter estimation for minimal DKI and minimal RIC
 <br>
 
 ## Overview: The cumulant expansion in diffusion MRI
-<img width="1690" alt="CumulantExpansion" src="https://user-images.githubusercontent.com/54751227/197211845-30f7d79d-2165-4b85-8b46-ae9aa05dadb0.png">
+<img width="1507" alt="Ob2_cumulant_expansion_RICE" src="https://user-images.githubusercontent.com/54751227/203182555-6f38be40-8364-4f36-8183-8e6cf07dc96e.png">
 
 
 
