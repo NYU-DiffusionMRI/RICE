@@ -20,7 +20,7 @@ We see that for O(b) signals (Eq. (3) ), the representation does not change (sti
 However, for O(b^2) a new tensor shows up: the diffusion covariance tensor, C, see Eq. (4). C is more general than kurtosis, actually it contains all the information of the kurtosis tensor plus some extra.
 
 ## Example use cases
-The [example_RICE.m](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script shows some examples on how to run the full RICE fitting and also the minimal DKI and minimal RICE ones. We also provide example datasets for these, [check this link](https://cai2r.net/).
+The [example_RICE](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script shows some examples on how to run the full RICE fitting and also the minimal DKI and minimal RICE ones. We also provide example datasets for these, [check this link](https://cai2r.net/).
 
 Briefly, the usage is:
 ```
