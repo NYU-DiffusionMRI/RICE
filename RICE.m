@@ -1193,6 +1193,65 @@ classdef RICE
             dirs = R*dirs;
         end
         % =================================================================
+        function WrapperPlotManySlices(ARRAY_4D, slice,clims,names,Nrows,positions,nanTransparent,colorbar_flag)
+            % Plot many slices
+            sz=size(ARRAY_4D);
+            if length(sz)==4
+                Nplots=sz(4);
+            elseif length(sz)==3
+                Nplots=sz(3);
+            end
+            
+            if ~exist('positions', 'var') || isempty(positions)
+                positions=1:Nplots;
+            end
+            if ~exist('nanTransparent', 'var') || isempty(nanTransparent)
+                nanTransparent=0;
+            end
+            if ~exist('colorbar_flag', 'var') || isempty(colorbar_flag)
+                colorbar_flag=1;
+            end
+            
+            if isvector(clims)
+                clims=repmat(clims,Nplots,1);
+            end
+            
+            for ii=1:Nplots
+                subplot(Nrows,ceil(Nplots/Nrows),positions(ii))
+                
+                if ~nanTransparent
+                    if length(sz)==4
+                        imagesc(ARRAY_4D(:,:,slice,ii),clims(ii,:))
+                    elseif length(sz)==3
+                        imagesc(ARRAY_4D(:,:,ii),clims(ii,:))
+                    end
+                else
+                    if length(sz)==4
+                        h=pcolor(ARRAY_4D(:,:,slice,ii)); clim(clims(ii,:)),set(h, 'EdgeColor', 'none');
+                    elseif length(sz)==3
+                        h=pcolor(ARRAY_4D(:,:,ii)); clim(clims(ii,:)),set(h, 'EdgeColor', 'none');
+                    end
+                end
+                
+                if isempty(names)
+                    title(['case ',num2str(ii)],'interpreter','latex')
+                else
+                    title(names{ii},'interpreter','latex')
+                end
+                set(gca,'FontSize',30), axis off, grid off, axis equal
+                
+                if colorbar_flag
+                cb=colorbar('south'); 
+                cb_pos =  cb.Position; cb_pos(2)=cb_pos(2)-0.025; bias=0.03; cb_pos(1)=cb_pos(1)+bias; cb_pos(3)=cb_pos(3)-2*bias;
+                set(cb,'position',cb_pos)
+                cb.Ticks=clims(ii,:);    
+                cb.Color= [0 0 0];
+                cb.Label.HorizontalAlignment='left';
+            %     cb.Label.HorizontalAlignment='center';
+                end
+            end
+        end
+        % =================================================================
     end
 end
 
