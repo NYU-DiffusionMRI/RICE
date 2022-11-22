@@ -28,7 +28,7 @@ type = 'fullRICE';  %  Estimate full D and C tensors from LTE + PTE data (WLLS)
 CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
 nsl_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
 
-[b0, tensor_elems, RICE_maps, DIFF_maps] = fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag)
+[b0, tensor_elems, RICE_maps, DIFF_maps] = RICE.fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag)
 
 % Compute fiber basis projections (axial and radial diffusivities and kurtosis)
 DKI_maps = RICE.get_DKI_fiberBasis_maps_from_4D_DW_tensors(tensor_elems, mask, CSphase);
