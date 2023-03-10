@@ -64,8 +64,8 @@ classdef RICE
 
     methods     ( Static = true )
         % =================================================================
-        function [b0, tensor_elems, RICE_maps, DIFF_maps] = fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag)
-            % [b0, tensor_elems, RICE_maps, DIFF_maps] = fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag)
+        function [b0, tensor_elems, RICE_maps, DIFF_maps] = fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag, parallel_flag)
+            % [b0, tensor_elems, RICE_maps, DIFF_maps] = fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag, parallel_flag)
             %
             % Unconstrained WLLS fit (initialized with LLS) for multiple versions
             % of the cumulant expansion (considering multiple combinations of 
@@ -90,6 +90,9 @@ classdef RICE
             %       type can be 'minimalDKI_iso' and then tensor_elem has:   [D00 S00] (2 elem)
             %                                      RICE has: D0 S0
             %                                      maps has: md mw 
+            %       type can be 'DKI_no_ell4' and then tensor_elem has:   [D00 D2m S00 S2m] (12 elem)
+            %                                      RICE has: D0 D2 S0 S2
+            %                                      maps has: md ad rd fa mw rw aw (these are axial symmetry approximations assuming W4=0) 
             %       type can be 'fullDKI' and then tensor_elem has:   [D00 D2m S00 S2m S4m] (21 elem)
             %                                      RICE has: D0 D2 S0 S2 S4
             %                                      maps has: md ad rd fa mw rw aw (these are axial symmetry approximations) 
@@ -98,7 +101,7 @@ classdef RICE
             %                                      maps has: md ad rd fa mw ufa  ](these are axial symmetry approximations)
             %       type can be 'fullRICE' and then tensor_elem has:  [D00 D2m S00 S2m S4m A00(rank2) A2m(rank2)] (27 elem)
             %                                      RICE has: D0 D2 S0 S2 S4 A0 A2
-            %                                      maps has: md ad rd fa mw aw rw ufa d0d2m (these are axial symmetry approximations) 
+            %                                      maps has: md ad rd fa mw aw rw ufa d0d2m SSC (these are axial symmetry approximations) 
             %
             %       maps.ad, maps.rd, maps.aw, and maps.rw are approximations assuming axially symmetric tensors (no need to go to fiber basis)
             %
@@ -120,6 +123,10 @@ classdef RICE
             %
             % By: Santiago Coelho (19/10/2022) Santiago.Coelho@nyulangone.org
             % =========================================================================
+            if ~exist('parallel_flag','var') || isempty(parallel_flag)
+                parallel_flag = true(1);
+            end
+
             [x, y, z, ndwis] = size(DWI);
             if ~exist('mask','var') || isempty(mask)
                 mask = true(x, y, z);
@@ -205,6 +212,9 @@ classdef RICE
             elseif strcmp(type,'minimalDKI')
                 r=12; % 7 elements are fitted: D00 D2m S00 (S2m are fitted and discarded)
                 X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4(:,1:6)];
+            elseif strcmp(type,'DKI_no_ell4')
+                r=12; % 12 elements are fitted: D00 D2m S00 S2m
+                X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4(:,1:6)];
             elseif strcmp(type,'fullDKI')
                 r=21; % 21 elements are fitted: D00 D2m S00 S2m S4m
                 X=[ones(size(b)), -Bij*Y2, 1/2*BijBkl*Y4];
@@ -223,10 +233,18 @@ classdef RICE
             dv = X\log(DWI);
             w = exp(X*dv);
             % WLLS fit initialized with LLS
-            parfor ii = 1:Nvoxels
-                wi = diag(w(:,ii));
-                logdwii = log(DWI(:,ii));
-                dv(:,ii) = (wi*X)\(wi*logdwii);
+            if parallel_flag
+                parfor ii = 1:Nvoxels
+                    wi = diag(w(:,ii));
+                    logdwii = log(DWI(:,ii));
+                    dv(:,ii) = (wi*X)\(wi*logdwii);
+                end
+            else
+                for ii = 1:Nvoxels
+                    wi = diag(w(:,ii));
+                    logdwii = log(DWI(:,ii));
+                    dv(:,ii) = (wi*X)\(wi*logdwii);
+                end
             end
             
             % Recover b0
@@ -280,6 +298,27 @@ classdef RICE
                 DIFF_maps.fa=sqrt(fa_sq);
                 W0=3*S0./D0.^2;
                 DIFF_maps.mw=W0;
+            elseif strcmp(type,'DKI_no_ell4')
+                D2m=tensor_elems(:,:,:,2:6);
+                D2=C2*sqrt(sum(D2m.^2,4));
+                S00=tensor_elems(:,:,:,7);
+                S0=C0*abs(S00);
+                S2m=tensor_elems(:,:,:,8:12);
+                S2=C2*sqrt(sum(S2m.^2,4));
+                RICE_maps.D2=D2;
+                RICE_maps.S0=S0;
+                RICE_maps.S2=S2;
+                DIFF_maps.md=D0;
+                DIFF_maps.ad=D0+D2;
+                DIFF_maps.rd=D0-1/2*D2;
+                fa_sq=3*D2.^2./(4*D0.^2+2*D2.^2);
+                fa_sq(fa_sq(:)<0)=0;
+                DIFF_maps.fa=sqrt(fa_sq);
+                W0=3*S0./D0.^2;
+                W2=3*S2./D0.^2;
+                DIFF_maps.mw=W0;
+                DIFF_maps.aw=(W0+W2).*D0.^2./(D0+D2).^2;
+                DIFF_maps.rw=(W0-1/2*W2).*D0.^2./(D0-1/2*D2).^2;
             elseif strcmp(type,'fullDKI')
                 D2m=tensor_elems(:,:,:,2:6);
                 D2=C2*sqrt(sum(D2m.^2,4));
@@ -371,7 +410,15 @@ classdef RICE
                 ufa_sq=3*D2sq./(4*D0.^2+2*D2sq);
                 ufa_sq(ufa_sq(:)<0)=0;
                 DIFF_maps.ufa=sqrt(ufa_sq);
-                DIFF_maps.d0d2m=sqrt(sum((D00.*D2m+7/(22*C0)*S2m-1/(11*C0)*A2m).^2,4));
+                % DIFF_maps.d0d2m=sqrt(sum((D00.*D2m+7/(22*C0)*S2m-1/(11*C0)*A2m).^2,4));
+                DIFF_maps.d0d2m_singleBra=sqrt(sum((D00.*D2m+7/(22*C0)*S2m-1/(11*C0)*A2m).^2,4));
+                DIFF_maps.d0d2m_doubleBra=sqrt(sum((7/(22*C0)*S2m-1/(11*C0)*A2m).^2,4));
+                D00_std=(5*S00+2*A00)/(9*C0);
+                D2m_std=(2*S00-A00)*10*C0/(9*C2^2);
+                D00_std=sqrt(D0sq)/C0;
+                D2m_std=sqrt(D2sq)/C2;
+                SSC=DIFF_maps.d0d2m_doubleBra./sqrt(abs(D00_std.*D2m_std));
+                DIFF_maps.SSC=SSC;
             end    
         end
         % =================================================================
