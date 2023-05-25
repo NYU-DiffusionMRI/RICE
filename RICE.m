@@ -946,6 +946,44 @@ classdef RICE
             DKI_maps.fe=RICE.vectorize(e1,mask);
         end
         % =================================================================
+        function e1 = get_fiberBasis_from_4D_D_tensor(dt, mask, CSphase)
+            % e1 = get_fiberBasis_from_4D_D_tensor(dt, mask, CSphase)
+            %
+            % dt contains dlm
+            %
+            % e1 contains:
+            % - first eigenvector: fe
+            %
+            %
+            % By: Santiago Coelho (07/09/2021) Santiago.Coelho@nyulangone.org
+            [ x, y, z, ~] = size(dt);
+            if ~exist('mask','var') || isempty(mask)
+                mask = true(x, y, z);
+            end
+            if ~exist('CSphase','var') || isempty(CSphase)
+                CSphase=1;
+            end
+            dt=double(dt);
+            dt(~isfinite(dt(:)))=0;
+            dt_stf=RICE.vectorize(dt(:,:,:,1:6),mask);
+            % Computing AW and RW with their exact definitions an all K maps
+            Y00=eye(3)/sqrt(4*pi);
+            Y2m2=[0,0.546274215296040,0;0.546274215296040,0,0;0,0,0];
+            Y2m1=(-1)^(CSphase)*[0,0,0;0,0,-0.546274215296040;0,-0.546274215296040,0];
+            Y20= [-0.315391565252520,0,0;0,-0.315391565252520,0;0,0,0.630783130505040];
+            Y21= (-1)^(CSphase)*[0,0,-0.546274215296040;0,0,0;-0.546274215296040,0,0];
+            Y22= [0.546274215296040,0,0;0,-0.546274215296040,0;0,0,0];
+            e1=0*dt_stf(1:3, :);
+            parfor ii = 1:size(dt_stf,2)
+                dt_current=dt_stf(:,ii);
+                Dlm=dt_current(1:6);
+                DT = Dlm(1)*Y00 + Dlm(2)*Y2m2 + Dlm(3)*Y2m1 + Dlm(4)*Y20 + Dlm(5)*Y21 + Dlm(6)*Y22;
+                [eigvec, ~] = eigs(DT);
+                e1(:, ii) = eigvec(:, 1);
+            end
+            e1 = RICE.vectorize(e1,mask);
+        end
+        % =================================================================
         function [s, mask] = vectorize(S, mask)
             if nargin == 1
                mask = ~isnan(S(:,:,:,1));
