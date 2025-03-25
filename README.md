@@ -88,7 +88,7 @@ A [US patent](link to patent) contains some of the related developments.
 %     below.
 %
 % REFERENCES:
-% - Coelho, S., Fieremans, E., Novikov, D.S., 2025. RICE Arxiv info.
+% - Coelho, S., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in neuroimaging, 2025, Arxiv, https://arxiv.org/abs/2409.03010
 ```
 
 [^note]:

@@ -60,7 +60,7 @@ classdef RICEtools
     %     below.
     %
     %  REFERENCES:
-    %  - Coelho, S., Szczepankiewicz, F., Fieremans, E., Novikov, D.S., 2024 (ArXiv)
+    %  - Coelho, S., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in neuroimaging, 2025, Arxiv, https://arxiv.org/abs/2409.03010
     %
 
     methods     ( Static = true )
