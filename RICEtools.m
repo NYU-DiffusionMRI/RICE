@@ -383,9 +383,10 @@ classdef RICEtools
                 W0=3*S0./D0.^2;
                 DIFF_maps.mw=W0;
                 % Other maps
-                T0 = 4/7 * S0 - 2/7 * A0;
-                Q0 = 3/7 * S0 + 2/7 * A0;
-                ufa_sq=(3*T0 + 3*D2.^2)./(2*T0 + 2*D2.^2 + 4*D0.^2 );
+                T0 = 4/9 * S0 - 2/9 * A0;
+                Q0 = 5/9 * S0 + 2/9 * A0;
+%                 ufa_sq=(3*T0 + 3*D2.^2)./(2*T0 + 2*D2.^2 + 4*D0.^2 );
+                ufa_sq=(15*T0 + 3*D2.^2)./(10*T0 + 2*D2.^2 + 4*D0.^2 );
                 ufa_sq(ufa_sq(:)<0)=0;
                 DIFF_maps.ufa=sqrt(ufa_sq);
             elseif strcmp(type,'fullRICE')
@@ -424,14 +425,18 @@ classdef RICEtools
                 kfa_sq(kfa_sq(:)<0)=0;
                 DIFF_maps.kfa = sqrt(kfa_sq);
                 % Other maps
-                T0 = 4/7 * S0 - 2/7 * A0;
-                Q0 = 3/7 * S0 + 2/7 * A0;
+                T0 = 4/9 * S0 - 2/9 * A0;
+                Q0 = 5/9 * S0 + 2/9 * A0;
                 Q2m = 1/9 * (7 * S2m - 2 * A2m);
+%                 ufa_sq=(3*T0 + 3*D2.^2)./(2*T0 + 2*D2.^2 + 4*D0.^2 );
+                ufa_sq=(15*T0 + 3*D2.^2)./(10*T0 + 2*D2.^2 + 4*D0.^2 );
+%                 T0 = 4/7 * S0 - 2/7 * A0;
+%                 Q0 = 3/7 * S0 + 2/7 * A0;
+%                 Q2m = 1/9 * (7 * S2m - 2 * A2m);
                 Q2=C2*sqrt(sum(Q2m.^2,4));
-                ufa_sq=(3*T0 + 3*D2.^2)./(2*T0 + 2*D2.^2 + 4*D0.^2 );
                 ufa_sq(ufa_sq(:)<0)=0;
                 DIFF_maps.ufa=sqrt(ufa_sq);
-                SSC=1/2 * Q2./sqrt(Q0.*T0);
+                SSC=1/2 * Q2./sqrt(abs(5*Q0.*T0));
                 DIFF_maps.SSC=SSC;
                 % DIFF_maps.d0d2m_doubleBra = 1/2 * Q2m;
             end    
@@ -990,10 +995,10 @@ classdef RICEtools
                 v1 = RICEtools.vectorize(v1,mask);
             elseif size(S2m,1) == 9
                 S2m = [zeros(6,size(S2m,2)) ; S2m];
-                Scart = STFtoolbox.STF2CART(S2m,CSphase,ComplexSTF);
+                Scart = RICEtools.STF2CART(S2m,CSphase,ComplexSTF);
                 for ii = 1:size(S2m,2)
-                    Sarray = STFtoolbox.unflattenTensor(Scart(:,ii));
-                    s4 = STFtoolbox.MapRank4_to_6x6(Sarray,'FullySymmetric');
+                    Sarray = RICEtools.unflattenTensor(Scart(:,ii));
+                    s4 = RICEtools.MapRank4_to_6x6(Sarray,'FullySymmetric');
                     [V,D] = eig(s4);
                     
         %             % Pick largest eigenvalue of rank-4 tensor (same for any rotation)
@@ -1934,7 +1939,7 @@ classdef RICEtools
                 only_one_tensor = 0;
             end
             S00 = Qlm(1,:) + Tlm(1,:) ;
-            A00 = 2 * Qlm(1,:) - 3/2 * Tlm(1,:) ;
+            A00 = 2 * Qlm(1,:) - 5/2 * Tlm(1,:) ;
             S2m = Qlm(2:6,:) + Tlm(2:6,:) ;
             A2m = - Qlm(2:6,:) + 7/2 * Tlm(2:6,:) ;
             S4m = Tlm(7:15,:);
@@ -1963,9 +1968,9 @@ classdef RICEtools
             else
                 only_one_tensor = 0;
             end
-            Q00 = 1/7 * (2 * Alm(1,:)    + 3 * Slm(1,:));
+            Q00 = 1/9 * (2 * Alm(1,:)    + 5 * Slm(1,:));
             Q2m = 1/9 * (-2 * Alm(2:6,:) + 7 * Slm(2:6,:));
-            T00 = 1/7 * (-2 * Alm(1,:)   + 4 * Slm(1,:));
+            T00 = 1/9 * (-2 * Alm(1,:)   + 4 * Slm(1,:));
             T2m = 1/9 * ( 2 * Alm(2:6,:) + 2 * Slm(2:6,:));
             T4m = Slm(7:15,:);
             Tlm = [T00 ; T2m ; T4m];
@@ -1998,21 +2003,7 @@ classdef RICEtools
             D00D21  = 1/2 * Qlm(5,:); % checked
             D00D22  = 1/2 * Qlm(6,:); % checked
             
-%             D2m2D2m2 = sqrt(70)/6 * Tlm(7,:); % checked
-%             D2m2D2m1 = sqrt(35)/6 * Tlm(8,:); % checked
-%             D2m2D20 =  - Tlm(2,:) + sqrt(15)/6 * Tlm(9,:) ; % checked
-%             D2m2D21 = sqrt(6)/2 * Tlm(3,:) + sqrt(5)/6 * Tlm(10,:) ; % checked
-%             D2m2D22 =  1/5 * Tlm(1,:) - Tlm(4,:) + 1/6 * Tlm(11,:) ; % checked *
-%             D2m1D2m1 = sqrt(150)/10 * Tlm(2,:) + sqrt(10)/3 * Tlm(9,:); % checked
-%             D2m1D20 = 1/2 * Tlm(3,:) + sqrt(30)/6 * Tlm(10,:) ; % checked
-%             D2m1D21 = - 1/5 * Tlm(1,:) - 1/2 * Tlm(4,:) + 2/3 * Tlm(11,:) ; % checked *
-%             D2m1D22 = -sqrt(6)/2 * Tlm(5,:) + sqrt(5)/6 * Tlm(12,:) ; % checked
-%             D20D20 = 1/5 * Tlm(1,:) + Tlm(4,:) + Tlm(11,:) ; % checked *
-%             D20D21 = 1/2 * Tlm(5,:) + sqrt(30)/6 * Tlm(12,:) ; % checked
-%             D20D22 = -Tlm(6,:) + sqrt(15)/6 * Tlm(13,:) ; % checked
-%             D21D21 = sqrt(150/10) * Tlm(6,:) + sqrt(10)/3 * Tlm(13,:); % checked
-%             D21D22 = sqrt(35)/6 * Tlm(14,:); % checked
-%             D22D22 = sqrt(70)/6 * Tlm(15,:); % checked
+
 
 
 T00  = Tlm(1,:);
@@ -2030,23 +2021,37 @@ T41  = Tlm(12,:);
 T42  = Tlm(13,:);
 T43  = Tlm(14,:);
 T44  = Tlm(15,:);
+% D2m2D2m2 = (70^(1/2)*T4m4)/6 ;
+% D2m2D2m1 = (35^(1/2)*T4m3)/6 ;
+% D2m2D20 = (15^(1/2)*T4m2)/6 - T2m2 ;
+% D2m2D21 = (5^(1/2)*T4m1)/6 - (6^(1/2)*T2m1)/2 ;
+% D2m2D22 = T00 - T20 + T40/6 ;
+% D2m1D2m1 = 10^(1/2)*(T4m2/3 + (15^(1/2)*T2m2)/10) ;
+% D2m1D20 = T2m1/2 + (30^(1/2)*T4m1)/6 ;
+% D2m1D21 = (2*T40)/3 - T20/2 - T00 ;
+% D2m1D22 = (5^(1/2)*T41)/6 - (6^(1/2)*T21)/2 ;
+% D20D20 = T00 + T20 + T40 ;
+% D20D21 = T21/2 + (30^(1/2)*T41)/6 ;
+% D20D22 = (15^(1/2)*T42)/6 - T22 ;
+% D21D21 = 10^(1/2)*(T42/3 + (15^(1/2)*T22)/10) ;
+% D21D22 = (35^(1/2)*T43)/6 ;
+% D22D22 = (70^(1/2)*T44)/6 ;
+
 D2m2D2m2 = (70^(1/2)*T4m4)/6 ;
 D2m2D2m1 = (35^(1/2)*T4m3)/6 ;
 D2m2D20 = (15^(1/2)*T4m2)/6 - T2m2 ;
 D2m2D21 = (5^(1/2)*T4m1)/6 - (6^(1/2)*T2m1)/2 ;
-D2m2D22 = T00/5 - T20 + T40/6 ;
+D2m2D22 = T00 - T20 + T40/6 ;
 D2m1D2m1 = 10^(1/2)*(T4m2/3 + (15^(1/2)*T2m2)/10) ;
 D2m1D20 = T2m1/2 + (30^(1/2)*T4m1)/6 ;
-D2m1D21 = (2*T40)/3 - T20/2 - T00/5 ;
+D2m1D21 = (2*T40)/3 - T20/2 - T00 ;
 D2m1D22 = (5^(1/2)*T41)/6 - (6^(1/2)*T21)/2 ;
-D20D20 = T00/5 + T20 + T40 ;
+D20D20 = T00 + T20 + T40 ;
 D20D21 = T21/2 + (30^(1/2)*T41)/6 ;
 D20D22 = (15^(1/2)*T42)/6 - T22 ;
 D21D21 = 10^(1/2)*(T42/3 + (15^(1/2)*T22)/10) ;
 D21D22 = (35^(1/2)*T43)/6 ;
 D22D22 = (70^(1/2)*T44)/6 ;
-
-
 
             DlmDlm = [D00D00 ; D00D2m2 ; D00D2m1 ; D00D20 ; D00D21 ; D00D22 ; D2m2D2m2 ; D2m2D2m1 ; D2m2D20 ; D2m2D21 ; D2m2D22 ; D2m1D2m1 ; D2m1D20 ; D2m1D21 ; D2m1D22 ; D20D20 ; D20D21 ; D20D22 ; D21D21 ; D21D22 ; D22D22];
             D2mD2m_5x5 = [ D2m2D2m2 ; D2m2D2m1 ; D2m2D20 ; D2m2D21 ; D2m2D22 ;...
@@ -2134,9 +2139,9 @@ D22D22 = (70^(1/2)*T44)/6 ;
             ids = [1:5 7:10 13:15 19:20 25];
             count = [1 2 2 2 2 1 2 2 2 1 2 2 1 2 1];
             if ComplexSTF
-                YY_15x5(1,:)    = [ 0 , 0 , 0 , 0 , 2 , 0 , 0 , -2 , 0 , 1  , 0  , 0 , 0  , 0 , 0 ];
+                YY_15x5(1,:)    = [ 0 , 0 , 0 , 0 , 2 , 0 , 0 , -2 , 0 , 1  , 0  , 0 , 0  , 0 , 0 ]/5;
             else
-                YY_15x5(1,:)    = [ 1 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1  , 0  , 0 , 1  , 0 , 1 ];
+                YY_15x5(1,:)    = [ 1 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1  , 0  , 0 , 1  , 0 , 1 ]/5;
             end
             for ii=1:5
                 aux = Y2Y2Y2_x(:,:,ii);
@@ -2236,7 +2241,7 @@ D22D22 = (70^(1/2)*T44)/6 ;
             Q22  = 2 * D00D22  ;
             Qlm = [Q00;Q2m2;Q2m1;Q20;Q21;Q22];  
             if ComplexSTF % Use Clebsch-Gordan coefficients
-                T00  = 5/sqrt(5) * (2/sqrt(5) * D2m2D22 - 2/sqrt(5) * D2m1D21 + 1/sqrt(5) * D20D20 ); % checked
+                T00  = 1/sqrt(5) * (2/sqrt(5) * D2m2D22 - 2/sqrt(5) * D2m1D21 + 1/sqrt(5) * D20D20 ); % checked
                 T2m2 = AAAA * (2 * sqrt(2/7) * D2m2D20 - sqrt(3/7) * D2m1D2m1); % checked
                 T2m1 = AAAA * (2 * sqrt(3/7) * D2m2D21 - 2 * sqrt(1/14) * D2m1D20); % checked
                 T20  = AAAA * (2 * sqrt(2/7) * D2m2D22 + 2 * sqrt(1/14) * D2m1D21 - sqrt(2/7) * D20D20); % checked
@@ -2403,11 +2408,11 @@ D22D22 = (70^(1/2)*T44)/6 ;
         end
         % =================================================================
         function S = symmetrizeTensorPartial(T,ids) % updated Sept2024 for Racah normalization
-        % S = symmetrizeTensorPartial(T,ids)
-        %
-        % clc,clear, T=randn(3,3,3,3,3,3); ids = [1 4 5];
-        %
-        % By: Santiago Coelho (03/04/2023)
+            % S = symmetrizeTensorPartial(T,ids)
+            %
+            % clc,clear, T=randn(3,3,3,3,3,3); ids = [1 4 5];
+            %
+            % By: Santiago Coelho (03/04/2023)
             if ~exist('ids', 'var') || isempty(ids)
                 sz = size(T);
                 ids = 1:length(sz);
@@ -2438,9 +2443,9 @@ D22D22 = (70^(1/2)*T44)/6 ;
         end
         % =================================================================
         function S = symmetrizeTensor(T) % updated Sept2024 for Racah normalization
-        % S = symmetrizeTensor(T)
-        %
-        % By: Santiago Coelho (01/04/2023)
+            % S = symmetrizeTensor(T)
+            %
+            % By: Santiago Coelho (01/04/2023)
             sz = size(T);
             rank = length(sz);
             Nperm=factorial(rank);
@@ -2457,6 +2462,314 @@ D22D22 = (70^(1/2)*T44)/6 ;
                 end
             end
             S = S/Nperm;
+        end
+        % =================================================================
+        function [E_a,lambda_a] = eigTensor_rank4_6x6(s4)
+            % [E_a,lambda_a] = eigTensor_rank4_6x6(s4)
+            %
+            % By: Santiago Coelho (23/02/2023)
+            [V,D] = eig(s4);
+            lambda_a = diag(D)';
+            E_a = zeros(3,3,6);
+            for ii=1:6
+                vi = V(:,ii)/norm(V(:,ii));
+                % Build corresponding eigentensor
+                Ei=[vi(1) 1/sqrt(2)*vi(4)  1/sqrt(2)*vi(5) ;  1/sqrt(2)*vi(4) vi(2) 1/sqrt(2)*vi(6) ;  1/sqrt(2)*vi(5) 1/sqrt(2)*vi(6) vi(3)];
+                % Enforce non-negative determinant
+                dd = det(Ei);
+                if dd~=0
+                    Ei = Ei*sign(dd);
+                end
+                E_a(:,:,ii) = Ei;
+            end
+        end
+        % =================================================================
+        function Rout = GetRotMatBetweenRandRank4Tensors(Rin,S4)
+            % Rout = GetRotMatBetweenRandRank4Tensors(Rin,S4)
+            %
+            % Extract coordinate basis from rank-4 tensor and compute rotation matrix
+            % 'Rout' to reference rotation matrix 'Rin'
+            %
+            % By: Santiago Coelho (03/02/2023)
+            s4 = RICEtools.MapRank4_to_6x6(S4,'FullySymmetric');
+            [V,D] = eig(s4);
+            
+            % Ensure det is +1
+            V = V*det(V);
+            
+            % Pick largest eigenvalue of rank-4 tensor (same for any rotation)
+            [~,id_max]=max(diag(D));
+            
+            % Get main eigentensor
+            vi=V(:,id_max)/norm(V(:,id_max));
+            
+            % Build corresponding eigentensor
+            E6=[vi(1) 1/sqrt(2)*vi(4)  1/sqrt(2)*vi(5) ;  1/sqrt(2)*vi(4) vi(2) 1/sqrt(2)*vi(6) ;  1/sqrt(2)*vi(5) 1/sqrt(2)*vi(6) vi(3)];
+            E6 = E6*sign(det(E6));
+            [Vi,~] = eig(E6);
+            
+            % Ensure det is +1
+            Vi = Vi*sign(det(Vi));
+            
+            % Computing rotation matrix
+            Rout = Rin.'*Vi;
+            
+            % Ensuring the dot product is mostly positive (sign convention used)
+            signs = 1-2*(sum(Rout<0)>=2);
+            Rout = Rout .* signs;
+        end
+        % =================================================================
+            function RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
+            % RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
+            %
+            % cumulant can be a 2D or 4D array with
+            % - D(Dlm), A(Alm), Q(Alm) elements in stf basis    , type = 'D', 'A' or 'Q'
+            % - S(Slm) or T(Tlm) elements in stf basis          , type = 'S' or 'T'
+            % - C(Slm,Alm) or C(Tlm,Qlm) elements in stf basis  , type = 'C'
+            %
+            % if the array is 4D then mask (which should be 3D) selects which voxels on
+            % which this operation is computed
+            %
+            % Santiago Coelho 01/12/2024
+            sz_Slm=size(cumulant);
+            if length(sz_Slm)==4
+                flag_4D=1;
+            elseif length(sz_Slm)==2
+                flag_4D=0;
+            else
+                error('Slm must be a 2D or 4D array')
+            end
+            if ~exist('CSphase','var') || isempty(CSphase) || CSphase
+                CSphase=1; % 1 means we use it (default)
+            else
+                CSphase=0; % 0 means we DO NOT use it
+            end
+            if ~exist('ComplexSTF','var') || isempty(ComplexSTF) || ~ComplexSTF
+                ComplexSTF=0; % 0 means we use real STF basis (default)
+            else
+                ComplexSTF=1; % 1 means we use complex STF basis
+            end
+            
+            if flag_4D
+                if isempty(mask)
+                    mask=true(sz_Slm(1:3));
+                end
+                Slm_2D = RICEtools.vectorize(cumulant,mask);
+                Nlm = sz_Slm(end);
+            else
+                Slm_2D = cumulant;
+                Nlm = sz_Slm(1);
+            end
+                        
+            Nvoxels = size(Slm_2D,2);
+            if strcmp(type,'D')||strcmp(type,'A')||strcmp(type,'Q')
+                % Compute invariants of rank-2 symmetric tensor: from 6 dof, 3 invariants = 3 intrinsic
+                S00 = Slm_2D(1,:);
+                S2m = Slm_2D(2:6,:);
+                S_0 = S00(1,:);
+                S_22 = (S2m(1,:).^2 + S2m(2,:).^2 + S2m(3,:).^2 + S2m(4,:).^2 + S2m(5,:).^2) ;
+                S_23 = 1/4 * (- 3*3^(1/2)*S2m(5,:).*S2m(2,:).^2 + 6*3^(1/2)*S2m(4,:).*S2m(2,:).*S2m(1,:) + 3*3^(1/2)*S2m(4,:).^2.*S2m(5,:) - 6*S2m(3,:).*S2m(1,:).^2 + 3*S2m(3,:).*S2m(2,:).^2 - 6*S2m(3,:).*S2m(5,:).^2 + 3*S2m(3,:).*S2m(4,:).^2 + 2*S2m(3,:).^3) ;
+                if flag_4D
+                    S_0 = RICEtools.vectorize(S_0,mask);
+                    S_22 = RICEtools.vectorize(S_22,mask);
+                    S_23 = RICEtools.vectorize(S_23,mask);
+                end   
+            elseif strcmp(type,'S')
+                % Compute invariants of rank-4 symmetric tensor: from 15 dof, 12 invariants = 9 intrinsic + 3 mixed
+                S00 = Slm_2D(1,:);
+                S2m = Slm_2D(2:6,:);
+                S4m = Slm_2D(7:15,:);
+                % ell = 0 intrinsic invariants
+                S_0 = S00(1,:);
+                % ell = 2 intrinsic invariants
+                S_22 = (S2m(1,:).^2 + S2m(2,:).^2 + S2m(3,:).^2 + S2m(4,:).^2 + S2m(5,:).^2) ;
+                S_23 = 1/4 * (- 3*3^(1/2)*S2m(5,:).*S2m(2,:).^2 + 6*3^(1/2)*S2m(4,:).*S2m(2,:).*S2m(1,:) + 3*3^(1/2)*S2m(4,:).^2.*S2m(5,:) - 6*S2m(3,:).*S2m(1,:).^2 + 3*S2m(3,:).*S2m(2,:).^2 - 6*S2m(3,:).*S2m(5,:).^2 + 3*S2m(3,:).*S2m(4,:).^2 + 2*S2m(3,:).^3) ;
+                % ell = 4 intrinsic invariants and mixed invariants
+                S_42 = 0 * S_0;
+                S_43 = 0 * S_0;
+                S_44 = 0 * S_0;
+                S_45 = 0 * S_0;
+                S_E  = 0 * S_0;
+                S_Et = 0 * S_0;
+                RS2S4_phi = 0 * S_0;
+                RS2S4_theta = 0 * S_0;
+                RS2S4_psi = 0 * S_0;
+                parfor ii=1:Nvoxels
+                    S2 = RICEtools.BuildSTF(S2m(:,ii),2,CSphase,ComplexSTF);
+                    S4 = RICEtools.F(S4m(:,ii),4,CSphase,ComplexSTF);
+                    s4 = RICEtools.MapRank4_to_6x6(S4,'FullySymmetric');
+                    S_22(ii) = trace(S2^2);
+                    S_23(ii) = trace(S2^3);
+                    S_42(ii) = trace(s4^2);
+                    S_43(ii) = trace(s4^3);
+                    S_44(ii) = trace(s4^4);
+                    S_45(ii) = trace(s4^5);
+                    [E_a,lambda_a] = RICEtools.eigTensor_rank4_6x6(s4);
+                    E=sum(E_a,3);        
+                    w_lamb = permute(repmat(lambda_a(:),[1,3,3]),[2 3 1]);
+                    Et=sum(E_a.*w_lamb,3);
+                    S_E(ii) = trace(E^3);
+                    S_Et(ii) = trace(Et^3);
+                    [V2,~] = eig(S2);
+                    RS2 = V2*det(V2);
+                    RS2S4 = RICEtools.GetRotMatBetweenRandRank4Tensors(RS2,S4);
+                    % AXANG = rotm2axang(Rout);
+                    eul_S4 = rotm2eul(RS2S4);
+                    RS2S4_phi(ii)   = eul_S4(1);
+                    RS2S4_theta(ii) = eul_S4(2);
+                    RS2S4_psi(ii)   = eul_S4(3);
+                end
+                if flag_4D
+                    S_0  = RICEtools.vectorize(S_0,mask);
+                    S_22 = RICEtools.vectorize(S_22,mask);
+                    S_23 = RICEtools.vectorize(S_23,mask);
+                    S_42 = RICEtools.vectorize(S_42,mask);
+                    S_43 = RICEtools.vectorize(S_43,mask);
+                    S_44 = RICEtools.vectorize(S_44,mask);
+                    S_45 = RICEtools.vectorize(S_45,mask);
+                    S_E  = RICEtools.vectorize(S_E,mask);
+                    S_Et = RICEtools.vectorize(S_Et,mask);
+                    RS2S4_phi = RICEtools.vectorize(RS2S4_phi,mask);
+                    RS2S4_theta = RICEtools.vectorize(RS2S4_theta,mask);
+                    RS2S4_psi = RICEtools.vectorize(RS2S4_psi,mask);
+                end 
+            elseif strcmp(type,'C')
+                % Compute invariants of covariance tensor: from 21 dof, 18 invariants = 12 intrinsic + 6 mixed
+                S00 = Slm_2D(1,:);
+                S2m = Slm_2D(2:6,:);
+                S4m = Slm_2D(7:15,:);
+                A00 = Slm_2D(16,:);
+                A2m = Slm_2D(17:21,:);
+                % ell = 0 intrinsic invariants
+                S_0 = S00(1,:);
+                A_0 = A00(1,:);
+                % ell = 2 intrinsic invariants
+                S_22 = (S2m(1,:).^2 + S2m(2,:).^2 + S2m(3,:).^2 + S2m(4,:).^2 + S2m(5,:).^2) ;
+                S_23 = 1/4 * (- 3*3^(1/2)*S2m(5,:).*S2m(2,:).^2 + 6*3^(1/2)*S2m(4,:).*S2m(2,:).*S2m(1,:) + 3*3^(1/2)*S2m(4,:).^2.*S2m(5,:) - 6*S2m(3,:).*S2m(1,:).^2 + 3*S2m(3,:).*S2m(2,:).^2 - 6*S2m(3,:).*S2m(5,:).^2 + 3*S2m(3,:).*S2m(4,:).^2 + 2*S2m(3,:).^3) ;
+                A_22 = (A2m(1,:).^2 + A2m(2,:).^2 + A2m(3,:).^2 + A2m(4,:).^2 + A2m(5,:).^2) ;
+                A_23 = 1/4 * (- 3*3^(1/2)*A2m(5,:).*A2m(2,:).^2 + 6*3^(1/2)*A2m(4,:).*A2m(2,:).*A2m(1,:) + 3*3^(1/2)*A2m(4,:).^2.*A2m(5,:) - 6*A2m(3,:).*A2m(1,:).^2 + 3*A2m(3,:).*A2m(2,:).^2 - 6*A2m(3,:).*A2m(5,:).^2 + 3*A2m(3,:).*A2m(4,:).^2 + 2*A2m(3,:).^3) ;
+                S_42 = 0 * S_0;
+                S_43 = 0 * S_0;
+                S_44 = 0 * S_0;
+                S_45 = 0 * S_0;
+                S_E  = 0 * S_0;
+                S_Et = 0 * S_0;
+                RS2S4_phi = 0 * S_0;
+                RS2S4_theta = 0 * S_0;
+                RS2S4_psi = 0 * S_0;
+                RS2A2_phi = 0 * S_0;
+                RS2A2_theta = 0 * S_0;
+                RS2A2_psi = 0 * S_0;
+                parfor ii=1:Nvoxels
+                    S2 = RICEtools.BuildSTF(S2m(:,ii),2,CSphase,ComplexSTF);
+                    A2 = RICEtools.BuildSTF(A2m(:,ii),2,CSphase,ComplexSTF);
+                    S4 = RICEtools.BuildSTF(S4m(:,ii),4,CSphase,ComplexSTF);
+                    s4 = RICEtools.MapRank4_to_6x6(S4,'FullySymmetric');
+                    
+                    A_22(ii) = trace(A2^2);
+                    A_23(ii) = trace(A2^3);
+            
+                    S_22(ii) = trace(S2^2);
+                    S_23(ii) = trace(S2^3);
+                    S_42(ii) = trace(s4^2);
+                    S_43(ii) = trace(s4^3);
+                    S_44(ii) = trace(s4^4);
+                    S_45(ii) = trace(s4^5);
+            
+                    [E_a,lambda_a] = RICEtools.eigTensor_rank4_6x6(s4);
+                    E=sum(E_a,3)-eye(3)/sqrt(3); % NOT adding identity
+                    % E=sum(E_a,3); % Adding identity  
+                    w_lamb = permute(repmat(lambda_a(:),[1,3,3]),[2 3 1]);
+                    Et=sum(E_a.*w_lamb,3);
+                    S_E(ii) = trace(E^3); % NOT adding identity
+                    S_Et(ii) = trace(Et^3);
+            
+                    [V2,~] = eig(S2);
+                    RS2 = V2*det(V2);
+            
+                    RS2S4 = RICEtools.GetRotMatBetweenRandRank4Tensors(RS2,S4);
+            %         AXANG = rotm2axang(RS2S4);
+                    eul_S4 = rotm2eul(RS2S4);
+                    RS2S4_phi(ii)   = eul_S4(1);
+                    RS2S4_theta(ii) = eul_S4(2);
+                    RS2S4_psi(ii)   = eul_S4(3);
+            
+                    % Computing rotation matrix
+                    [V2a,~] = eig(A2);
+                    RA2 = V2a*det(V2a);
+                    RS2A2 = RS2.'*RA2;
+                    % Ensuring the dot product is mostly positive (sign convention used)
+                    signs = 1-2*(sum(RS2A2<0)>=2);
+                    RS2A2 = RS2A2 .* signs;
+            
+                    eul_A2 = rotm2eul(RS2A2);
+                    RS2A2_phi(ii)   = eul_A2(1);
+                    RS2A2_theta(ii) = eul_A2(2);
+                    RS2A2_psi(ii)   = eul_A2(3);
+                end
+                if flag_4D
+                    S_0  = RICEtools.vectorize(S_0,mask);
+                    S_22 = RICEtools.vectorize(S_22,mask);
+                    S_23 = RICEtools.vectorize(S_23,mask);
+                    S_42 = RICEtools.vectorize(S_42,mask);
+                    S_43 = RICEtools.vectorize(S_43,mask);
+                    S_44 = RICEtools.vectorize(S_44,mask);
+                    S_45 = RICEtools.vectorize(S_45,mask);
+                    S_E  = RICEtools.vectorize(S_E,mask);
+                    S_Et = RICEtools.vectorize(S_Et,mask);
+                    RS2S4_phi = RICEtools.vectorize(RS2S4_phi,mask);
+                    RS2S4_theta = RICEtools.vectorize(RS2S4_theta,mask);
+                    RS2S4_psi = RICEtools.vectorize(RS2S4_psi,mask);
+                    A_0  = RICEtools.vectorize(A_0,mask);
+                    A_22 = RICEtools.vectorize(A_22,mask);
+                    A_23 = RICEtools.vectorize(A_23,mask);
+                    RS2A2_phi = RICEtools.vectorize(RS2A2_phi,mask);
+                    RS2A2_theta = RICEtools.vectorize(RS2A2_theta,mask);
+                    RS2A2_psi = RICEtools.vectorize(RS2A2_psi,mask);
+                end 
+            end
+            
+            if strcmp(type,'D')
+                RotationalInvariants.D_0=S_0;
+                RotationalInvariants.D_22=S_22;
+                RotationalInvariants.D_23=S_23;
+            elseif strcmp(type,'A')
+                RotationalInvariants.A_0=S_0;
+                RotationalInvariants.A_22=S_22;
+                RotationalInvariants.A_23=S_23;
+            elseif strcmp(type,'S')
+                RotationalInvariants.S_0=S_0;
+                RotationalInvariants.S_22=S_22;
+                RotationalInvariants.S_23=S_23;
+                RotationalInvariants.S_42=S_42;
+                RotationalInvariants.S_43=S_43;
+                RotationalInvariants.S_44=S_44;
+                RotationalInvariants.S_45=S_45;
+                RotationalInvariants.S_E=S_E;
+                RotationalInvariants.S_Et=S_Et;
+                RotationalInvariants.RS2S4_phi=RS2S4_phi;
+                RotationalInvariants.RS2S4_theta=RS2S4_theta;
+                RotationalInvariants.RS2S4_psi=RS2S4_psi;
+            elseif strcmp(type,'C')
+                RotationalInvariants.S_0=S_0;
+                RotationalInvariants.S_22=S_22;
+                RotationalInvariants.S_23=S_23;
+                RotationalInvariants.S_42=S_42;
+                RotationalInvariants.S_43=S_43;
+                RotationalInvariants.S_44=S_44;
+                RotationalInvariants.S_45=S_45;
+                RotationalInvariants.S_E=S_E;
+                RotationalInvariants.S_Et=S_Et;
+                RotationalInvariants.RS2S4_phi=RS2S4_phi;
+                RotationalInvariants.RS2S4_theta=RS2S4_theta;
+                RotationalInvariants.RS2S4_psi=RS2S4_psi;
+                RotationalInvariants.A_0=A_0;
+                RotationalInvariants.A_22=A_22;
+                RotationalInvariants.A_23=A_23;    
+                RotationalInvariants.RS2A2_phi=RS2A2_phi;
+                RotationalInvariants.RS2A2_theta=RS2A2_theta;
+                RotationalInvariants.RS2A2_psi=RS2A2_psi;
+            end   
         end
         % =================================================================
     end
