@@ -1,5 +1,5 @@
 # RICE toolbox (Rotational Invariants of the Cumulant Expansion)
-This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors[^note]. Check [our recent paper](https://arxiv.org/pdf/2202.02399.pdf) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general. Below we provide instructions on how to run the toolbox. See the [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script that performs the parameter estimation in an [example dataset](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/).
+This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors[^note]. Check [our recent paper](https://arxiv.org/abs/2409.03010) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general. Below we provide instructions on how to run the toolbox. See the [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script that performs the parameter estimation in an [example dataset](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/).
 
 The toolbox also allows the parameter estimation for minimal DKI and minimal RICE protocols proposed in [^note].
 
@@ -59,7 +59,7 @@ A [US patent](link to patent) contains some of the related developments.
 
 ```
 %  Authors: Santiago Coelho (santiago.coelho@nyulangone.org), Els Fieremans, Dmitry Novikov
-%  Copyright (c) 2022 New York University
+%  Copyright (c) 2025 New York University
 %              
 %   Permission is hereby granted, free of charge, to any non-commercial entity ('Recipient') obtaining a 
 %   copy of this software and associated documentation files (the 'Software'), to the Software solely for
@@ -88,9 +88,9 @@ A [US patent](link to patent) contains some of the related developments.
 %     below.
 %
 % REFERENCES:
-% - Coelho, S., Fieremans, E., Novikov, D.S., 2022. RICE Arxiv info.
+% - Coelho, S., Fieremans, E., Novikov, D.S., 2025. RICE Arxiv info.
 ```
 
 [^note]:
     Please cite these works if you use the RICE toolbox in your publication:
-    - Coelho, S., Fieremans, E., Novikov, D.S., 2022. RICE Arxiv info
+    - Coelho, S., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in neuroimaging, 2025, Arxiv, https://arxiv.org/abs/2409.03010
