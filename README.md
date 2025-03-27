@@ -28,14 +28,17 @@ Briefly, the basic usage of the code is as follows:
 
 type = 'fullRICE';  %  Estimate full D and C tensors from LTE + PTE data (WLLS)
 CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
-nsl_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
+ComplexSTF = 0;     % Use real-valued spherical harmonics definition
+nls_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
+parallel_flag = 1;  % Use paralellization
 
-[b0, tensor_elems, RICE_maps, DIFF_maps] = RICE.fit(DWI, b, dirs, bshape, mask, CSphase, type, nls_flag)
+[b0, tensor_elems, RICE_maps, DIFF_maps] = RICEtools.fit(DWI, b, dirs, bshape, mask, CSphase, ComplexSTF, type, nls_flag, parallel_flag);
+
 
 % Compute fiber basis projections (axial and radial diffusivities and kurtosis)
-DKI_maps = RICE.get_DKI_fiberBasis_maps_from_4D_DW_tensors(tensor_elems, mask, CSphase);
+DKI_maps = RICEtools.get_DKI_fiberBasis_maps_from_4D_DW_tensors(tensor_elems, mask, CSphase, ComplexSTF);
 ```
-See the help in RICE.fit and RICE.get_DKI_fiberBasis_maps_from_4D_DW_tensors for more details.
+See the help in RICEtools.fit and RICEtools.get_DKI_fiberBasis_maps_from_4D_DW_tensors for more details. In a nutshell, the code uses the SA decomposition for the fitting such that it can handle LTE only data.
 
 The following options are available in RICE.fit for the input argument 'type': (parameter count does not include s0)
 - 'minimalDTI': only MD is fit (1 elem, [D00])
@@ -46,6 +49,23 @@ The following options are available in RICE.fit for the input argument 'type': (
 - 'minimalRICE': full diffusion tensor + MK + A0 are fit (8 elem, [D00 D2m S00 S2m A00])
 - 'fullRICE': full diffusion and covariance tensors are fit (27 elem, [D00 D2m S00 S2m S4m A00 A2m])
 
+If you are interested in the TQ decomposition you can simply convert S,A tensors into T,Q with this linear transformation:
+```
+% Computing SA and TQ decompositions
+Dlm = tensor_elems(:,:,:,1:6);
+Slm = tensor_elems(:,:,:,7:21); % tensor_elems contains Slm and Alm elements of C
+Alm = tensor_elems(:,:,:,22:27); % tensor_elems contains Slm and Alm elements of C
+
+% Compute TQ decomposition
+Q00 = 5/9 * Slm(:,:,:,1) + 2/9 * Alm(:,:,:,1) ;
+T00 = 4/9 * Slm(:,:,:,1) - 2/9 * Alm(:,:,:,1) ;
+Q2m = 7/9 * Slm(:,:,:,2:6) - 2/9 * Alm(:,:,:,2:6) ;
+T2m = 2/9 * Slm(:,:,:,2:6) + 2/9 * Alm(:,:,:,2:6) ;
+T4m = Slm(:,:,:,7:15);
+Tlm = cat(4,T00,T2m,T4m);
+Qlm = cat(4,Q00,Q2m);
+```
+
 ## RICE Authors
 - [Santiago Coelho](https://santiagocoelho.github.io/)
 - [Els Fieremans](https://www.diffusion-mri.com/who-we-are/els-fieremans/)
@@ -55,7 +75,7 @@ Do not hesitate to reach out to Santiago.Coelho@nyulangone.org (or [@santicoelho
 
 ## LICENSE
 
-A [US patent](link to patent) contains some of the related developments. 
+A [US patent](https://patents.google.com/patent/WO2023205506A2/en?q=(santiago+coelho%2c+System%2c+method+and+computer-accessible+medium+for+diffusion+mri+shells)&oq=santiago+coelho%2c+System%2c+method+and+computer-accessible+medium+for+diffusion+mri+without+shells+) contains some of the related developments. 
 
 ```
 %  Authors: Santiago Coelho (santiago.coelho@nyulangone.org), Els Fieremans, Dmitry Novikov

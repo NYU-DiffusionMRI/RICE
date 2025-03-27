@@ -39,14 +39,14 @@ mask = logical(nii_mask.img);
 % RICE toolbox parameter estimation example
 type = 'fullRICE';  %  Estimate full D and C tensors from LTE + PTE data (WLLS)
 CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
-ComplexSTF = 0;     % Use complex-valued spherical harmonics definition
+ComplexSTF = 0;     % Use real-valued spherical harmonics definition
 nls_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
 parallel_flag = 1;  % Use paralellization
 [b0, tensor_elems, RICE_maps, DIFF_maps] = RICEtools.fit(DWI, b, dirs, beta, mask, CSphase, ComplexSTF, type, nls_flag, parallel_flag);
 % tensor_elems contains Slm and Alm elements
 
 % Compute fiber basis projections (axial and radial diffusivities and kurtosis)
-DKI_maps = RICEtools.get_DKI_fiberBasis_maps_from_4D_DW_tensors(tensor_elems, mask, CSphase);
+DKI_maps = RICEtools.get_DKI_fiberBasis_maps_from_4D_DW_tensors(tensor_elems, mask, CSphase, ComplexSTF);
 
 % Plot color FA map
 slice = 40;
