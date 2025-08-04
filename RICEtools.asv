@@ -833,7 +833,7 @@ classdef RICEtools
         if flag_keep_00
             Evaluated_Sn = Ylm_n * slm_real;
         else
-            Evaluated_Sn = Ylm_n(:,2:end) * slm_real;
+            Evaluated_Sn = Ylm_n * slm_real;
         end
         phi=reshape(phi(:),[RES RES]);
         theta=reshape(pi/2-theta(:),[RES RES]);
