@@ -8,9 +8,6 @@
 %
 % EXAMPLE 3 - Fitting minimal RICE (LTE + STE) vs full RICE (LTE + PTE)
 %
-% EXAMPLE 4 - Visualizing tensor glyphs
-%
-%
 % =========================================================================================================
 % =========================================================================================================
 % =========================================================================================================
@@ -25,22 +22,23 @@
 clc,clear,close all
 
 % Path were the test dataset is located
-pathFiles = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE_example_datasets/dataset_1';
+pathFiles = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE_BIDS/subj-001/dwi';
 
 % Load example dataset 1, mask, and protocol
-nii_dwi = load_untouch_nii(fullfile(pathFiles,'dwi.nii'));
+protocol_name = 'sub-001_acq-lte-pte-fullRICE';
+nii_dwi = load_untouch_nii(fullfile(pathFiles,[protocol_name,'.nii']));
 DWI = nii_dwi.img;
 
-b = load(fullfile(pathFiles,'dwi.bval'));
-beta = load(fullfile(pathFiles,'dwi.beta'));
-dirs = load(fullfile(pathFiles,'dwi.dirs'));
+b = load(fullfile(pathFiles,[protocol_name,'.bval']));
+beta = load(fullfile(pathFiles,[protocol_name,'.beta']));
+dirs = load(fullfile(pathFiles,[protocol_name,'.bvec']));
 
-nii_mask = load_untouch_nii(fullfile(pathFiles,'mask.nii'));
+nii_mask = load_untouch_nii(fullfile(pathFiles,[protocol_name,'-brain_mask.nii']));
 mask = logical(nii_mask.img);
 
 % RICE toolbox parameter estimation example
 type = 'fullRICE';  %  Estimate full D and C tensors from LTE + PTE data (WLLS)
-CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
+CSphase = 0;        % Use Condon-Shortley phase in spherical harmonics definition
 ComplexSTF = 0;     % Use real-valued spherical harmonics definition
 nls_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
 parallel_flag = 1;  % Use paralellization
@@ -162,25 +160,27 @@ RICEtools.WrapperPlotManySlices(permute(mixed_C,[2 1 3 4]), slice,clims,nametags
 clc,clear,close all
 
 % Path were the test dataset is located
-pathFiles = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE_example_datasets/dataset_2';
+pathFiles = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE_BIDS/subj-001/dwi';
 
 % Load example dataset 2, mask, and protocol
-nii_dwi = load_untouch_nii(fullfile(pathFiles,'dwi_minimalDKI.nii'));
+protocol_name = 'sub-001_acq-lte-iRICE';
+nii_dwi = load_untouch_nii(fullfile(pathFiles,[protocol_name,'.nii']));
 DWI_minimalDKI = nii_dwi.img;
-b_minimalDKI = load(fullfile(pathFiles,'dwi_minimalDKI.bval'));
-beta_minimalDKI = load(fullfile(pathFiles,'dwi_minimalDKI.beta'));
-dirs_minimalDKI = load(fullfile(pathFiles,'dwi_minimalDKI.dirs'));
+b_minimalDKI = load(fullfile(pathFiles,[protocol_name,'.bval']));
+beta_minimalDKI = load(fullfile(pathFiles,[protocol_name,'.beta']));
+dirs_minimalDKI = load(fullfile(pathFiles,[protocol_name,'.bvec']));
 
-nii_dwi = load_untouch_nii(fullfile(pathFiles,'dwi_fullDKI.nii'));
+protocol_name = 'sub-001_acq-lte-fullDKI';
+nii_dwi = load_untouch_nii(fullfile(pathFiles,[protocol_name,'.nii']));
 DWI_fullDKI = nii_dwi.img;
-b_fullDKI = load(fullfile(pathFiles,'dwi_fullDKI.bval'));
-beta_fullDKI = load(fullfile(pathFiles,'dwi_fullDKI.beta'));
-dirs_fullDKI = load(fullfile(pathFiles,'dwi_fullDKI.dirs'));
+b_fullDKI = load(fullfile(pathFiles,[protocol_name,'.bval']));
+beta_fullDKI = load(fullfile(pathFiles,[protocol_name,'.beta']));
+dirs_fullDKI = load(fullfile(pathFiles,[protocol_name,'.bvec']));
 
-nii_mask = load_untouch_nii(fullfile(pathFiles,'mask.nii'));
+nii_mask = load_untouch_nii(fullfile(pathFiles,[protocol_name,'-brain_mask.nii']));
 mask = logical(nii_mask.img);
 
-CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
+CSphase = 0;        % Use Condon-Shortley phase in spherical harmonics definition
 ComplexSTF = 0;     % Use complex-valued spherical harmonics definition
 nls_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
 parallel_flag = 1;  % Use paralellization
@@ -204,25 +204,27 @@ RICEtools.WrapperPlotManySlices(allMAPS, slice,clims,nametags,2,[],1),
 clc,clear,close all
 
 % Path were the test dataset is located
-pathFiles = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE_example_datasets/dataset_3';
+pathFiles = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE_BIDS/subj-001/dwi';
 
 % Load example dataset 3, mask, and protocol
-nii_dwi = load_untouch_nii(fullfile(pathFiles,'dwi_minimalRICE.nii'));
+protocol_name = 'sub-001_acq-lte-ste-iRICE';
+nii_dwi = load_untouch_nii(fullfile(pathFiles,[protocol_name,'.nii']));
 DWI_minimalRICE = nii_dwi.img;
-b_minimalRICE = load(fullfile(pathFiles,'dwi_minimalRICE.bval'));
-beta_minimalRICE = load(fullfile(pathFiles,'dwi_minimalRICE.beta'));
-dirs_minimalRICE = load(fullfile(pathFiles,'dwi_minimalRICE.dirs'));
+b_minimalRICE = load(fullfile(pathFiles,[protocol_name,'.bval']));
+beta_minimalRICE = load(fullfile(pathFiles,[protocol_name,'.beta']));
+dirs_minimalRICE = load(fullfile(pathFiles,[protocol_name,'.bvec']));
 
-nii_dwi = load_untouch_nii(fullfile(pathFiles,'dwi_fullRICE.nii'));
+protocol_name = 'sub-001_acq-lte-pte-fullRICE';
+nii_dwi = load_untouch_nii(fullfile(pathFiles,[protocol_name,'.nii']));
 DWI_fullRICE = nii_dwi.img;
-b_fullRICE = load(fullfile(pathFiles,'dwi_fullRICE.bval'));
-beta_fullRICE = load(fullfile(pathFiles,'dwi_fullRICE.beta'));
-dirs_fullRICE = load(fullfile(pathFiles,'dwi_fullRICE.dirs'));
+b_fullRICE = load(fullfile(pathFiles,[protocol_name,'.bval']));
+beta_fullRICE = load(fullfile(pathFiles,[protocol_name,'.beta']));
+dirs_fullRICE = load(fullfile(pathFiles,[protocol_name,'.bvec']));
 
-nii_mask = load_untouch_nii(fullfile(pathFiles,'mask.nii'));
+nii_mask = load_untouch_nii(fullfile(pathFiles,[protocol_name,'-brain_mask.nii']));
 mask = logical(nii_mask.img);
 
-CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
+CSphase = 0;        % Use Condon-Shortley phase in spherical harmonics definition
 ComplexSTF = 0;     % Use complex-valued spherical harmonics definition
 nls_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
 parallel_flag = 1;  % Use paralellization

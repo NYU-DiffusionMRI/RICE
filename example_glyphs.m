@@ -1,3 +1,7 @@
+%% Example code for RICE (Rotational Invariants of the Cumulant Expansion)
+%
+% EXAMPLE 4 - Visualizing tensor glyphs - 
+%
 %% D-C TQ IRREDUCIBLE DECOMPOSITION GLYPHS
 clc,clear,close all
 load('/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE/tensorfits_example.mat')
@@ -14,7 +18,7 @@ Alm_vox = squeeze(tensor_elems(vox_x,vox_y,vox_z,22:27));
 Slm_vox = squeeze(tensor_elems(vox_x,vox_y,vox_z,7:21));
 Dlm_vox = squeeze(tensor_elems(vox_x,vox_y,vox_z,1:6));
 
-[Tlm_vox,Qlm_vox]       = STFtools.SA2TQ(Slm_vox, Alm_vox);
+[Tlm_vox,Qlm_vox] = RICEtools.SA2TQ(Slm_vox, Alm_vox);
 
 Slm_vox = Tlm_vox;
 Alm_vox = Qlm_vox;
