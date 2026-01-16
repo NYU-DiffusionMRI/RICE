@@ -8,11 +8,11 @@ The toolbox also allows the parameter estimation for iRICE protocols (LTE or LTE
 ## Overview: The cumulant expansion in diffusion MRI
 First-order expansion, equivalent to diffusion tensor imaging (DTI):
 
-$$$\mathcal{O}(b) \rightarrow \log \mathcal{S} = \log \mathcal{S}_0 - \sum_{ij} \mathsf{B}_{ij} \mathsf{D}_{ij}  + \mathcal{O}(b^2)$$$
+$$\mathcal{O}(b) \rightarrow \log \mathcal{S} = \log \mathcal{S}_0 - \sum_{ij} \mathsf{B}_{ij} \mathsf{D}_{ij}  + \mathcal{O}(b^2)$$
 
 Second-order expansion, equivalent to diffusion kurtosis imaging (DKI) for LTE data or q-space trajectory imaging (QTI) for arbitrary $\mathsf{B}$-tensors:
 
-$\mathcal{O}(b^2) \rightarrow \log \mathcal{S} = \log \mathcal{S}_0 - \sum_{ij} \mathsf{B}_{ij} \mathsf{D}_{ij} + \tfrac12 \sum_{ijkl} \mathsf{B}_{ij} \mathsf{B}_{kl} \mathsf{C}_{ijkl}  + \mathcal{O}(b^3)$
+$$\mathcal{O}(b^2) \rightarrow \log \mathcal{S} = \log \mathcal{S}_0 - \sum_{ij} \mathsf{B}_{ij} \mathsf{D}_{ij} + \tfrac12 \sum_{ijkl} \mathsf{B}_{ij} \mathsf{B}_{kl} \mathsf{C}_{ijkl}  + \mathcal{O}(b^3)$$
 
 <!-- <img width="1604" alt="Ob2_cumulant_expansion_RICE" src="https://user-images.githubusercontent.com/54751227/203182843-a1097e1d-9bd8-4a88-a60e-99f0d56a5104.png"> -->
 
