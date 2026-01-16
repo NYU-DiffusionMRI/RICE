@@ -45,7 +45,7 @@ Briefly, the basic usage of the code is as follows:
 % RICE toolbox parameter estimation example
 
 type = 'fullRICE';  %  Estimate full D and C tensors from LTE + PTE data (WLLS)
-CSphase = 1;        % Use Condon-Shortley phase in spherical harmonics definition
+CSphase = 0;        % Use Condon-Shortley phase in spherical harmonics definition - usually for complex basis
 ComplexSTF = 0;     % Use real-valued spherical harmonics definition
 nls_flag = 1;       % Use local nonlinear smoothing for fitting to boost SNR
 parallel_flag = 1;  % Use paralellization
