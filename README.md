@@ -7,9 +7,8 @@ The toolbox also allows the parameter estimation for iRICE protocols (LTE or LTE
 
 ## Overview: The cumulant expansion in diffusion MRI
 <img width="1604" alt="Ob2_cumulant_expansion_RICE" src="https://user-images.githubusercontent.com/54751227/203182843-a1097e1d-9bd8-4a88-a60e-99f0d56a5104.png">
-$$
-S(b) = S_0 \exp(-b D)
-$$
+
+Equation $S(b) = S_0 \exp(-b D)$
 
 ## LTE data
 For conventional dMRI data, linear tensor encoding (LTE), one can represent low-b data with the O(b) cumulant expansion as shown in Eq. (1). This is simply DTI, and it can represent DWIs up to ~b=1200 ms/mm^2.
