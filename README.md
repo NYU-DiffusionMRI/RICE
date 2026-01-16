@@ -8,7 +8,7 @@ The toolbox also allows the parameter estimation for iRICE protocols (LTE or LTE
 ## Overview: The cumulant expansion in diffusion MRI
 First-order expansion, equivalent to diffusion tensor imaging (DTI):
 
-$\mathcal{O}(b) \rightarrow \log \mathcal{S} = \log \mathcal{S}_0 - \sum_{ij} \mathsf{B}_{ij} \mathsf{D}_{ij}  + \mathcal{O}(b^2)$
+$$$\mathcal{O}(b) \rightarrow \log \mathcal{S} = \log \mathcal{S}_0 - \sum_{ij} \mathsf{B}_{ij} \mathsf{D}_{ij}  + \mathcal{O}(b^2)$$$
 
 Second-order expansion, equivalent to diffusion kurtosis imaging (DKI) for LTE data or q-space trajectory imaging (QTI) for arbitrary $\mathsf{B}$-tensors:
 
