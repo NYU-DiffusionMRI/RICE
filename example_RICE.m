@@ -89,29 +89,44 @@ Qlm = cat(4,Q00,Q2m);
 %% plot all rotational invariants of D
 clc,close all
 mask_RICE = logical(mask); mask_RICE(:,:,[1:slice-1 slice+1:size(mask,3)]) = 0;
-tic
-D_RICE = RICEtools.ComputeInvariantsFromCumulants(Dlm,'D',mask_RICE,CSphase,ComplexSTF);
+
+% % Computing invariants using traces of powers as defined in Eqn. (23) & (68)
+% D_RICE = RICEtools.ComputeInvariantsFromCumulants(Dlm,'D',mask_RICE,CSphase,ComplexSTF);
+
+% Computing invariants using integrals of powers as defined in Eqn. (69)
+D_RICE = RICEtools.ComputeInvariantsFromCumulants_0thproj(Dlm,'D',mask_RICE,CSphase,ComplexSTF);
+
+% Note that invariants _{0} and _{l|2} are identical for both of the above definitions
+
 invariants_D = cat(4,D_RICE.D_0, sqrt(D_RICE.D_22), nthroot(D_RICE.D_23,3));
 nametags={'$\mathsf{D}_{0}$','$\mathsf{D}_2 = \mathsf{D}_{2|2}$','$\mathsf{D}_{2|3}$'};
 clims=[0 3;0 1;-0.5 1];
 figure('Position', [519 421 1657 628])
 RICEtools.WrapperPlotManySlices(permute(invariants_D,[2 1 3 4]), slice,clims,nametags,1,[],1),
 
+
 %% plot all intrinsic rotational invariants of S and A
 clc,close all
 C = cat( 4, Slm, Alm);
 mask_RICE = logical(mask); mask_RICE(:,:,[1:slice-1 slice+1:size(mask,3)]) = 0;
-C_RICE = RICEtools.ComputeInvariantsFromCumulants(C,'C',mask_RICE,CSphase,ComplexSTF);
+
+% % Computing invariants using traces of powers as defined in Eqn. (23) & (68)
+% clims = [ 0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3;0 0.5;-2 -1;-0.3 0.3;0 2;0 1;-0.3 0.3 ]; n6_root = 3; n7_root = 3;
+% C_RICE = RICEtools.ComputeInvariantsFromCumulants(C,'C',mask_RICE,CSphase,ComplexSTF);
+
+% Computing invariants using integrals of powers as defined in Eqn. (69)
+clims = [ 0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3;0 2;0 1;-0.3 0.3 ]; n6_root = 6; n7_root = 7;
+C_RICE = RICEtools.ComputeInvariantsFromCumulants_0thproj(C,'C',mask_RICE,CSphase,ComplexSTF);
+
+% Note that invariants _{0} and _{l|2} are identical for both of the above definitions
 
 intrinsic_C = cat(4,C_RICE.S_0, sqrt(C_RICE.S_22), nthroot(C_RICE.S_23,3), ...
                      sqrt(C_RICE.S_42), nthroot(C_RICE.S_43,3), nthroot(C_RICE.S_44,4), nthroot(C_RICE.S_45,5), ...
-                     nthroot(C_RICE.S_E,3), nthroot(C_RICE.S_Et,3),...
+                     nthroot(C_RICE.S_46,n6_root), nthroot(C_RICE.S_47,n7_root),...
                      C_RICE.A_0, sqrt(C_RICE.A_22), nthroot(C_RICE.A_23,3));
 nametags={'$\mathsf{S}_{0}$','$\mathsf{S}_2 = \mathsf{S}_{2|2}$','$\mathsf{S}_{2|3}$',...
           '$\mathsf{S}_4 = \mathsf{S}_{4|2}$','$\mathsf{S}_{4|3}$','$\mathsf{S}_{4|4}$','$\mathsf{S}_{4|5}$','$\mathsf{S}_{4|6}$','$\mathsf{S}_{4|7}$',...
           '$\mathsf{A}_{0}$','$\mathsf{A}_2 = \mathsf{A}_{2|2}$','$\mathsf{A}_{2|3}$'};
-clims = [ 0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3; ...
-          0 0.5;-2 -1;-0.3 0.3;0 2;0 1;-0.3 0.3 ];
 figure('Position', [22 192 2501 927])
 RICEtools.WrapperPlotManySlices(permute(intrinsic_C,[2 1 3 4]), slice,clims,nametags,2,[],1),
 
@@ -126,17 +141,24 @@ RICEtools.WrapperPlotManySlices(permute(mixed_C,[2 1 3 4]), slice,clims,nametags
 clc,close all
 C = cat( 4, Tlm, Qlm);
 mask_RICE = logical(mask); mask_RICE(:,:,[1:slice-1 slice+1:size(mask,3)]) = 0;
-C_RICE = RICEtools.ComputeInvariantsFromCumulants(C,'C',mask_RICE,CSphase,ComplexSTF);
+
+% % Computing invariants using traces of powers as defined in Eqn. (23) & (68)
+% clims = [ 0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3;0 0.5;-2 -1;-0.3 0.3;0 2;0 0.5;-0.3 0.3 ]; n6_root = 3; n7_root = 3;
+% C_RICE = RICEtools.ComputeInvariantsFromCumulants(C,'C',mask_RICE,CSphase,ComplexSTF);
+
+% Computing invariants using integrals of powers as defined in Eqn. (69)
+clims = [ 0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3;0 0.5;0 1;-0.3 0.3;0 2;0 0.5;-0.3 0.3 ]; n6_root = 6; n7_root = 7;
+C_RICE = RICEtools.ComputeInvariantsFromCumulants_0thproj(C,'C',mask_RICE,CSphase,ComplexSTF);
+
+% Note that invariants _{0} and _{l|2} are identical for both of the above definitions
 
 intrinsic_C = cat(4,C_RICE.S_0, sqrt(C_RICE.S_22), nthroot(C_RICE.S_23,3), ...
                      sqrt(C_RICE.S_42), nthroot(C_RICE.S_43,3), nthroot(C_RICE.S_44,4), nthroot(C_RICE.S_45,5), ...
-                     nthroot(C_RICE.S_E,3), nthroot(C_RICE.S_Et,3),...
+                     nthroot(C_RICE.S_46,n6_root), nthroot(C_RICE.S_47,n7_root),...
                      C_RICE.A_0, sqrt(C_RICE.A_22), nthroot(C_RICE.A_23,3));
 nametags={'$\mathsf{T}_{0}$','$\mathsf{T}_2 = \mathsf{T}_{2|2}$','$\mathsf{T}_{2|3}$',...
           '$\mathsf{T}_4 = \mathsf{T}_{4|2}$','$\mathsf{T}_{4|3}$','$\mathsf{T}_{4|4}$','$\mathsf{T}_{4|5}$','$\mathsf{T}_{4|6}$','$\mathsf{T}_{4|7}$',...
           '$\mathsf{Q}_{0}$','$\mathsf{Q}_2 = \mathsf{Q}_{2|2}$','$\mathsf{Q}_{2|3}$'};
-clims = [ 0 0.5;0 0.5;-0.3 0.3;0 0.5;0 0.5;-0.3 0.3; ...
-          0 0.5;-2 -1;-0.3 0.3;0 2;0 0.5;-0.3 0.3 ];
 figure('Position', [22 192 2501 927])
 RICEtools.WrapperPlotManySlices(permute(intrinsic_C,[2 1 3 4]), slice,clims,nametags,2,[],1),
 

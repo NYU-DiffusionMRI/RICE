@@ -2594,6 +2594,9 @@ D22D22 = (70^(1/2)*T44)/6 ;
             for ii = 1:length(n)
                 Sln(ii,:) = ( leb_weights * ( Yellm_n * Slm ).^n(ii) );
             end
+
+            % Normalize such that all invariants S_\ell = S_{\ell,2} = || S^{\ell m} ||_m
+            Sln = Sln * (2*Lmax+1)/(4*pi) ;
         end
         % =================================================================
             function RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
@@ -2666,27 +2669,30 @@ D22D22 = (70^(1/2)*T44)/6 ;
                 S_43 = 0 * S_0;
                 S_44 = 0 * S_0;
                 S_45 = 0 * S_0;
-                S_E  = 0 * S_0;
-                S_Et = 0 * S_0;
+                % Replacing S_E with S_46 and S_Et with S_47
+                S_46  = 0 * S_0;
+                S_47 = 0 * S_0;
                 RS2S4_phi = 0 * S_0;
                 RS2S4_theta = 0 * S_0;
                 RS2S4_psi = 0 * S_0;
+                % l2_factor = 2/3;
+                l4_factor = 8/35;
                 parfor ii=1:Nvoxels
                     S2 = RICEtools.BuildSTF(S2m(:,ii),2,CSphase,ComplexSTF);
                     S4 = RICEtools.BuildSTF(S4m(:,ii),4,CSphase,ComplexSTF);
                     s4 = RICEtools.MapRank4_to_6x6(S4,'FullySymmetric');
-                    S_22(ii) = trace(S2^2);
-                    S_23(ii) = trace(S2^3);
-                    S_42(ii) = trace(s4^2);
-                    S_43(ii) = trace(s4^3);
-                    S_44(ii) = trace(s4^4);
-                    S_45(ii) = trace(s4^5);
+                    % S_22(ii) = trace(S2^2)*l2_factor; % This is easy to compute analytically
+                    % S_23(ii) = trace(S2^3)*l2_factor; % This is easy to compute analytically
+                    S_42(ii) = trace(s4^2)*l4_factor;
+                    S_43(ii) = trace(s4^3)*l4_factor;
+                    S_44(ii) = trace(s4^4)*l4_factor;
+                    S_45(ii) = trace(s4^5)*l4_factor;
                     [E_a,lambda_a] = RICEtools.eigTensor_rank4_6x6(s4);
                     E=sum(E_a,3);        
                     w_lamb = permute(repmat(lambda_a(:),[1,3,3]),[2 3 1]);
                     Et=sum(E_a.*w_lamb,3);
-                    S_E(ii) = trace(E^3);
-                    S_Et(ii) = trace(Et^3);
+                    S_46(ii) = trace(E^3);
+                    S_47(ii) = trace(Et^3);
                     [V2,~] = eig(S2);
                     RS2 = V2*det(V2);
                     RS2S4 = RICEtools.GetRotMatBetweenRandRank4Tensors(RS2,S4);
@@ -2704,8 +2710,8 @@ D22D22 = (70^(1/2)*T44)/6 ;
                     S_43 = RICEtools.vectorize(S_43,mask);
                     S_44 = RICEtools.vectorize(S_44,mask);
                     S_45 = RICEtools.vectorize(S_45,mask);
-                    S_E  = RICEtools.vectorize(S_E,mask);
-                    S_Et = RICEtools.vectorize(S_Et,mask);
+                    S_46  = RICEtools.vectorize(S_46,mask);
+                    S_47 = RICEtools.vectorize(S_47,mask);
                     RS2S4_phi = RICEtools.vectorize(RS2S4_phi,mask);
                     RS2S4_theta = RICEtools.vectorize(RS2S4_theta,mask);
                     RS2S4_psi = RICEtools.vectorize(RS2S4_psi,mask);
@@ -2729,37 +2735,37 @@ D22D22 = (70^(1/2)*T44)/6 ;
                 S_43 = 0 * S_0;
                 S_44 = 0 * S_0;
                 S_45 = 0 * S_0;
-                S_E  = 0 * S_0;
-                S_Et = 0 * S_0;
+                S_46  = 0 * S_0;
+                S_47 = 0 * S_0;
                 RS2S4_phi = 0 * S_0;
                 RS2S4_theta = 0 * S_0;
                 RS2S4_psi = 0 * S_0;
                 RS2A2_phi = 0 * S_0;
                 RS2A2_theta = 0 * S_0;
                 RS2A2_psi = 0 * S_0;
+                % l2_factor = 2/3;
+                l4_factor = 8/35;
                 parfor ii=1:Nvoxels
                     S2 = RICEtools.BuildSTF(S2m(:,ii),2,CSphase,ComplexSTF);
                     A2 = RICEtools.BuildSTF(A2m(:,ii),2,CSphase,ComplexSTF);
                     S4 = RICEtools.BuildSTF(S4m(:,ii),4,CSphase,ComplexSTF);
                     s4 = RICEtools.MapRank4_to_6x6(S4,'FullySymmetric');
-                    
-                    A_22(ii) = trace(A2^2);
-                    A_23(ii) = trace(A2^3);
-            
-                    S_22(ii) = trace(S2^2);
-                    S_23(ii) = trace(S2^3);
-                    S_42(ii) = trace(s4^2);
-                    S_43(ii) = trace(s4^3);
-                    S_44(ii) = trace(s4^4);
-                    S_45(ii) = trace(s4^5);
+                    % A_22(ii) = trace(A2^2)*l2_factor; % This is easy to compute analytically
+                    % A_23(ii) = trace(A2^3)*l2_factor; % This is easy to compute analytically
+                    % S_22(ii) = trace(S2^2)*l2_factor; % This is easy to compute analytically
+                    % S_23(ii) = trace(S2^3)*l2_factor; % This is easy to compute analytically
+                    S_42(ii) = trace(s4^2)*l4_factor;
+                    S_43(ii) = trace(s4^3)*l4_factor;
+                    S_44(ii) = trace(s4^4)*l4_factor;
+                    S_45(ii) = trace(s4^5)*l4_factor;
             
                     [E_a,lambda_a] = RICEtools.eigTensor_rank4_6x6(s4);
                     E=sum(E_a,3)-eye(3)/sqrt(3); % NOT adding identity
                     % E=sum(E_a,3); % Adding identity  
                     w_lamb = permute(repmat(lambda_a(:),[1,3,3]),[2 3 1]);
                     Et=sum(E_a.*w_lamb,3);
-                    S_E(ii) = trace(E^3); % NOT adding identity
-                    S_Et(ii) = trace(Et^3);
+                    S_46(ii) = trace(E^3); % NOT adding identity
+                    S_47(ii) = trace(Et^3);
             
                     [V2,~] = eig(S2);
                     RS2 = V2*det(V2);
@@ -2792,8 +2798,8 @@ D22D22 = (70^(1/2)*T44)/6 ;
                     S_43 = RICEtools.vectorize(S_43,mask);
                     S_44 = RICEtools.vectorize(S_44,mask);
                     S_45 = RICEtools.vectorize(S_45,mask);
-                    S_E  = RICEtools.vectorize(S_E,mask);
-                    S_Et = RICEtools.vectorize(S_Et,mask);
+                    S_46  = RICEtools.vectorize(S_46,mask);
+                    S_47 = RICEtools.vectorize(S_47,mask);
                     RS2S4_phi = RICEtools.vectorize(RS2S4_phi,mask);
                     RS2S4_theta = RICEtools.vectorize(RS2S4_theta,mask);
                     RS2S4_psi = RICEtools.vectorize(RS2S4_psi,mask);
@@ -2822,8 +2828,8 @@ D22D22 = (70^(1/2)*T44)/6 ;
                 RotationalInvariants.S_43=S_43;
                 RotationalInvariants.S_44=S_44;
                 RotationalInvariants.S_45=S_45;
-                RotationalInvariants.S_E=S_E;
-                RotationalInvariants.S_Et=S_Et;
+                RotationalInvariants.S_46=S_46;
+                RotationalInvariants.S_47=S_47;
                 RotationalInvariants.RS2S4_phi=RS2S4_phi;
                 RotationalInvariants.RS2S4_theta=RS2S4_theta;
                 RotationalInvariants.RS2S4_psi=RS2S4_psi;
@@ -2835,8 +2841,238 @@ D22D22 = (70^(1/2)*T44)/6 ;
                 RotationalInvariants.S_43=S_43;
                 RotationalInvariants.S_44=S_44;
                 RotationalInvariants.S_45=S_45;
-                RotationalInvariants.S_E=S_E;
-                RotationalInvariants.S_Et=S_Et;
+                RotationalInvariants.S_46=S_46;
+                RotationalInvariants.S_47=S_47;
+                RotationalInvariants.RS2S4_phi=RS2S4_phi;
+                RotationalInvariants.RS2S4_theta=RS2S4_theta;
+                RotationalInvariants.RS2S4_psi=RS2S4_psi;
+                RotationalInvariants.A_0=A_0;
+                RotationalInvariants.A_22=A_22;
+                RotationalInvariants.A_23=A_23;    
+                RotationalInvariants.RS2A2_phi=RS2A2_phi;
+                RotationalInvariants.RS2A2_theta=RS2A2_theta;
+                RotationalInvariants.RS2A2_psi=RS2A2_psi;
+            end   
+        end
+        % =================================================================
+            function RotationalInvariants = ComputeInvariantsFromCumulants_0thproj(cumulant,type,mask,CSphase,ComplexSTF)
+            % RotationalInvariants = ComputeInvariantsFromCumulants_0thproj(cumulant,type,mask,CSphase,ComplexSTF)
+            %
+            % cumulant can be a 2D or 4D array with
+            % - D(Dlm), A(Alm), Q(Alm) elements in stf basis    , type = 'D', 'A' or 'Q'
+            % - S(Slm) or T(Tlm) elements in stf basis          , type = 'S' or 'T'
+            % - C(Slm,Alm) or C(Tlm,Qlm) elements in stf basis  , type = 'C'
+            %
+            % if the array is 4D then mask (which should be 3D) selects which voxels on
+            % which this operation is computed
+            %
+            % Santiago Coelho 01/12/2025
+            sz_Slm=size(cumulant);
+            if length(sz_Slm)==4
+                flag_4D=1;
+            elseif length(sz_Slm)==2
+                flag_4D=0;
+            else
+                error('Slm must be a 2D or 4D array')
+            end
+            if ~exist('CSphase','var') || isempty(CSphase) || CSphase
+                CSphase=1; % 1 means we use it (default)
+            else
+                CSphase=0; % 0 means we DO NOT use it
+            end
+            if ~exist('ComplexSTF','var') || isempty(ComplexSTF) || ~ComplexSTF
+                ComplexSTF=0; % 0 means we use real STF basis (default)
+            else
+                ComplexSTF=1; % 1 means we use complex STF basis
+            end
+            
+            if flag_4D
+                if isempty(mask)
+                    mask=true(sz_Slm(1:3));
+                end
+                Slm_2D = RICEtools.vectorize(cumulant,mask);
+                Nlm = sz_Slm(end);
+            else
+                Slm_2D = cumulant;
+                Nlm = sz_Slm(1);
+            end
+                        
+            Nvoxels = size(Slm_2D,2);
+            if strcmp(type,'D')||strcmp(type,'A')||strcmp(type,'Q')
+                % Compute invariants of rank-2 symmetric tensor: from 6 dof, 3 invariants = 3 intrinsic
+                S00 = Slm_2D(1,:);
+                S2m = Slm_2D(2:6,:);
+                S_0 = S00(1,:);
+
+                S2n = RICEtools.compute_symm_tensor_0proj_invariants(S2m, CSphase, ComplexSTF, 2:3);
+                S_22 = S2n(1,:);
+                S_23 = S2n(2,:);
+                if flag_4D
+                    S_0 = RICEtools.vectorize(S_0,mask);
+                    S_22 = RICEtools.vectorize(S_22,mask);
+                    S_23 = RICEtools.vectorize(S_23,mask);
+                end   
+            elseif strcmp(type,'S')
+                % Compute invariants of rank-4 symmetric tensor: from 15 dof, 12 invariants = 9 intrinsic + 3 mixed
+                S00 = Slm_2D(1,:);
+                S2m = Slm_2D(2:6,:);
+                S4m = Slm_2D(7:15,:);
+                % ell = 0 intrinsic invariants
+                S_0 = S00(1,:);
+                % ell = 2 intrinsic invariants
+                S2n = RICEtools.compute_symm_tensor_0proj_invariants(S2m, CSphase, ComplexSTF, 2:3);
+                S_22 = S2n(1,:);
+                S_23 = S2n(2,:);
+                % ell = 4 intrinsic invariants and mixed invariants
+                S4n = RICEtools.compute_symm_tensor_0proj_invariants(S4m, CSphase, ComplexSTF, 2:7);
+                S_42 = S4n(1,:);
+                S_43 = S4n(2,:);
+                S_44 = S4n(3,:);
+                S_45 = S4n(4,:);
+                S_46 = S4n(5,:);
+                S_47 = S4n(6,:);
+                RS2S4_phi = 0 * S_0;
+                RS2S4_theta = 0 * S_0;
+                RS2S4_psi = 0 * S_0;
+                parfor ii=1:Nvoxels
+                    S2 = RICEtools.BuildSTF(S2m(:,ii),2,CSphase,ComplexSTF);
+                    S4 = RICEtools.BuildSTF(S4m(:,ii),4,CSphase,ComplexSTF);
+
+                    [V2,~] = eig(S2);
+                    RS2 = V2*det(V2);
+                    RS2S4 = RICEtools.GetRotMatBetweenRandRank4Tensors(RS2,S4);
+                    % AXANG = rotm2axang(Rout);
+                    eul_S4 = rotm2eul(RS2S4);
+                    RS2S4_phi(ii)   = eul_S4(1);
+                    RS2S4_theta(ii) = eul_S4(2);
+                    RS2S4_psi(ii)   = eul_S4(3);
+                end
+                if flag_4D
+                    S_0  = RICEtools.vectorize(S_0,mask);
+                    S_22 = RICEtools.vectorize(S_22,mask);
+                    S_23 = RICEtools.vectorize(S_23,mask);
+                    S_42 = RICEtools.vectorize(S_42,mask);
+                    S_43 = RICEtools.vectorize(S_43,mask);
+                    S_44 = RICEtools.vectorize(S_44,mask);
+                    S_45 = RICEtools.vectorize(S_45,mask);
+                    S_46  = RICEtools.vectorize(S_46,mask);
+                    S_47 = RICEtools.vectorize(S_47,mask);
+                    RS2S4_phi = RICEtools.vectorize(RS2S4_phi,mask);
+                    RS2S4_theta = RICEtools.vectorize(RS2S4_theta,mask);
+                    RS2S4_psi = RICEtools.vectorize(RS2S4_psi,mask);
+                end 
+            elseif strcmp(type,'C')
+                % Compute invariants of covariance tensor: from 21 dof, 18 invariants = 12 intrinsic + 6 mixed
+                S00 = Slm_2D(1,:);
+                S2m = Slm_2D(2:6,:);
+                S4m = Slm_2D(7:15,:);
+                A00 = Slm_2D(16,:);
+                A2m = Slm_2D(17:21,:);
+                % ell = 0 intrinsic invariants
+                S_0 = S00(1,:);
+                A_0 = A00(1,:);
+                % S, A intrinsic invariants - ell = 2
+                S2n = RICEtools.compute_symm_tensor_0proj_invariants(S2m, CSphase, ComplexSTF, 2:3);
+                S_22 = S2n(1,:);
+                S_23 = S2n(2,:);
+                A2n = RICEtools.compute_symm_tensor_0proj_invariants(A2m, CSphase, ComplexSTF, 2:3);
+                A_22 = A2n(1,:);
+                A_23 = A2n(2,:);
+                % S intrinsic invariants - ell = 4
+                S4n = RICEtools.compute_symm_tensor_0proj_invariants(S4m, CSphase, ComplexSTF, 2:7);
+                S_42 = S4n(1,:);
+                S_43 = S4n(2,:);
+                S_44 = S4n(3,:);
+                S_45 = S4n(4,:);
+                S_46 = S4n(5,:);
+                S_47 = S4n(6,:);
+                RS2S4_phi = 0 * S_0;
+                RS2S4_theta = 0 * S_0;
+                RS2S4_psi = 0 * S_0;
+                RS2A2_phi = 0 * S_0;
+                RS2A2_theta = 0 * S_0;
+                RS2A2_psi = 0 * S_0;
+                parfor ii=1:Nvoxels
+                    S2 = RICEtools.BuildSTF(S2m(:,ii),2,CSphase,ComplexSTF);
+                    A2 = RICEtools.BuildSTF(A2m(:,ii),2,CSphase,ComplexSTF);
+                    S4 = RICEtools.BuildSTF(S4m(:,ii),4,CSphase,ComplexSTF);
+            
+                    [V2,~] = eig(S2);
+                    RS2 = V2*det(V2);
+            
+                    RS2S4 = RICEtools.GetRotMatBetweenRandRank4Tensors(RS2,S4);
+            %         AXANG = rotm2axang(RS2S4);
+                    eul_S4 = rotm2eul(RS2S4);
+                    RS2S4_phi(ii)   = eul_S4(1);
+                    RS2S4_theta(ii) = eul_S4(2);
+                    RS2S4_psi(ii)   = eul_S4(3);
+            
+                    % Computing rotation matrix
+                    [V2a,~] = eig(A2);
+                    RA2 = V2a*det(V2a);
+                    RS2A2 = RS2.'*RA2;
+                    % Ensuring the dot product is mostly positive (sign convention used)
+                    signs = 1-2*(sum(RS2A2<0)>=2);
+                    RS2A2 = RS2A2 .* signs;
+            
+                    eul_A2 = rotm2eul(RS2A2);
+                    RS2A2_phi(ii)   = eul_A2(1);
+                    RS2A2_theta(ii) = eul_A2(2);
+                    RS2A2_psi(ii)   = eul_A2(3);
+                end
+                if flag_4D
+                    S_0  = RICEtools.vectorize(S_0,mask);
+                    S_22 = RICEtools.vectorize(S_22,mask);
+                    S_23 = RICEtools.vectorize(S_23,mask);
+                    S_42 = RICEtools.vectorize(S_42,mask);
+                    S_43 = RICEtools.vectorize(S_43,mask);
+                    S_44 = RICEtools.vectorize(S_44,mask);
+                    S_45 = RICEtools.vectorize(S_45,mask);
+                    S_46 = RICEtools.vectorize(S_46,mask);
+                    S_47 = RICEtools.vectorize(S_47,mask);
+                    RS2S4_phi = RICEtools.vectorize(RS2S4_phi,mask);
+                    RS2S4_theta = RICEtools.vectorize(RS2S4_theta,mask);
+                    RS2S4_psi = RICEtools.vectorize(RS2S4_psi,mask);
+                    A_0  = RICEtools.vectorize(A_0,mask);
+                    A_22 = RICEtools.vectorize(A_22,mask);
+                    A_23 = RICEtools.vectorize(A_23,mask);
+                    RS2A2_phi = RICEtools.vectorize(RS2A2_phi,mask);
+                    RS2A2_theta = RICEtools.vectorize(RS2A2_theta,mask);
+                    RS2A2_psi = RICEtools.vectorize(RS2A2_psi,mask);
+                end
+            end
+            
+            if strcmp(type,'D')
+                RotationalInvariants.D_0=S_0;
+                RotationalInvariants.D_22=S_22;
+                RotationalInvariants.D_23=S_23;
+            elseif strcmp(type,'A')
+                RotationalInvariants.A_0=S_0;
+                RotationalInvariants.A_22=S_22;
+                RotationalInvariants.A_23=S_23;
+            elseif strcmp(type,'S')
+                RotationalInvariants.S_0=S_0;
+                RotationalInvariants.S_22=S_22;
+                RotationalInvariants.S_23=S_23;
+                RotationalInvariants.S_42=S_42;
+                RotationalInvariants.S_43=S_43;
+                RotationalInvariants.S_44=S_44;
+                RotationalInvariants.S_45=S_45;
+                RotationalInvariants.S_46=S_46;
+                RotationalInvariants.S_47=S_47;
+                RotationalInvariants.RS2S4_phi=RS2S4_phi;
+                RotationalInvariants.RS2S4_theta=RS2S4_theta;
+                RotationalInvariants.RS2S4_psi=RS2S4_psi;
+            elseif strcmp(type,'C')
+                RotationalInvariants.S_0=S_0;
+                RotationalInvariants.S_22=S_22;
+                RotationalInvariants.S_23=S_23;
+                RotationalInvariants.S_42=S_42;
+                RotationalInvariants.S_43=S_43;
+                RotationalInvariants.S_44=S_44;
+                RotationalInvariants.S_45=S_45;
+                RotationalInvariants.S_46=S_46;
+                RotationalInvariants.S_47=S_47;
                 RotationalInvariants.RS2S4_phi=RS2S4_phi;
                 RotationalInvariants.RS2S4_theta=RS2S4_theta;
                 RotationalInvariants.RS2S4_psi=RS2S4_psi;
