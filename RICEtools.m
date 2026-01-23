@@ -2599,18 +2599,18 @@ D22D22 = (70^(1/2)*T44)/6 ;
             Sln = Sln * (2*Lmax+1)/(4*pi) ;
         end
         % =================================================================
-            function RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
-            % RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
-            %
-            % cumulant can be a 2D or 4D array with
-            % - D(Dlm), A(Alm), Q(Alm) elements in stf basis    , type = 'D', 'A' or 'Q'
-            % - S(Slm) or T(Tlm) elements in stf basis          , type = 'S' or 'T'
-            % - C(Slm,Alm) or C(Tlm,Qlm) elements in stf basis  , type = 'C'
-            %
-            % if the array is 4D then mask (which should be 3D) selects which voxels on
-            % which this operation is computed
-            %
-            % Santiago Coelho 01/12/2024
+        function RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
+        % RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
+        %
+        % cumulant can be a 2D or 4D array with
+        % - D(Dlm), A(Alm), Q(Alm) elements in stf basis    , type = 'D', 'A' or 'Q'
+        % - S(Slm) or T(Tlm) elements in stf basis          , type = 'S' or 'T'
+        % - C(Slm,Alm) or C(Tlm,Qlm) elements in stf basis  , type = 'C'
+        %
+        % if the array is 4D then mask (which should be 3D) selects which voxels on
+        % which this operation is computed
+        %
+        % Santiago Coelho 01/12/2024
             sz_Slm=size(cumulant);
             if length(sz_Slm)==4
                 flag_4D=1;
