@@ -2011,6 +2011,15 @@ classdef RICEtools
                 Alm = repmat(Alm(:),1,5);
             else
                 only_one_tensor = 0;
+                sz = size(Slm);
+                if length(sz) == 4
+                    flag_4D = 1;
+                    mask = true(sz(1:3));
+                    Slm = RICEtools.vectorize(Slm, mask);
+                    Alm = RICEtools.vectorize(Alm, mask);
+                else 
+                    flag_4D = 0;
+                end
             end
             Q00 = 1/9 * (2 * Alm(1,:)    + 5 * Slm(1,:));
             Q2m = 1/9 * (-2 * Alm(2:6,:) + 7 * Slm(2:6,:));
@@ -2022,6 +2031,9 @@ classdef RICEtools
             if only_one_tensor
                 Tlm = Tlm(:,1);
                 Qlm = Qlm(:,1);
+            elseif flag_4D
+                Tlm = RICEtools.vectorize(Tlm, mask);
+                Qlm = RICEtools.vectorize(Qlm, mask);
             end
         end
         % =================================================================

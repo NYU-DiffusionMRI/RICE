@@ -3,7 +3,7 @@
 RICE is a representation-based framework for understanding and estimating diffusion MRI cumulant tensors from arbitrary B-tensor encodings, enabling protocol-independent inference beyond conventional LTE-based DTI and DKI.
 
 
-This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors[^note]. Check [our recent paper](https://arxiv.org/abs/2409.03010) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general and its applications to diffusion MRI. Below, we provide instructions on how to run the toolbox. See the [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script that performs the parameter estimation in an [example dataset](https://cai2r.net/resources/standard-model-of-diffusion-in-white-matter-the-smi-toolbox/).
+This '[MATLAB toolbox](https://github.com/NYU-DiffusionMRI/RICE)' contains all necessary functions for parameter estimation of the O(b^2) cumulant expansion for arbitrary axially symmetric b-tensors[^note]. Check [our recent paper](https://arxiv.org/abs/2409.03010) for details on this implementation and [this book chaper](https://academic.oup.com/book/24921/chapter/188767614) for information on the cumulant expansion in general and its applications to diffusion MRI. Below, we provide instructions on how to run the toolbox. See the [example_RICE.m](https://github.com/NYU-DiffusionMRI/RICE/blob/main/example_RICE.m) script that performs the parameter estimation in the [example datasets](https://cai2r.net/resources/rotational-invariants-of-the-cumulant-expansion-the-rice-toolbox/).
 
 The toolbox also allows the parameter estimation for iRICE protocols (LTE or LTE+STE) proposed in [^note].
 
@@ -131,4 +131,4 @@ A [US patent](https://patents.google.com/patent/WO2023205506A2/en?q=(santiago+co
 
 [^note]:
     Please cite these works if you use the RICE toolbox in your publication:
-    - Coelho, S., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in neuroimaging, 2025, Arxiv, https://arxiv.org/abs/2409.03010
+    - Coelho, S., Chen J., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in diffusion MRI, 2025, Arxiv, https://arxiv.org/abs/2409.03010
