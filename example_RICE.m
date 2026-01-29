@@ -71,32 +71,12 @@ names = {'MD','FA','MK','AK','RK','$\mu$FA','SSC'};
 figure('Position',[201 232 1971 910]), colormap gray
 RICEtools.WrapperPlotManySlices(permute(allDIFF,[2 1 3 4]), slice, clims, names, 2, [], 1, 1),
 
-
 % Computing SA and TQ decompositions
 Dlm = tensor_elems(:,:,:,1:6);
 Slm = tensor_elems(:,:,:,7:21); % tensor_elems contains Slm and Alm elements of C
 Alm = tensor_elems(:,:,:,22:27); % tensor_elems contains Slm and Alm elements of C
 
-[Tlm2,Qlm2] = RICEtools.SA2TQ(Slm,Alm);
-
-            Q00 = 1/9 * (2 * Alm(1,:)    + 5 * Slm(1,:));
-            Q2m = 1/9 * (-2 * Alm(2:6,:) + 7 * Slm(2:6,:));
-            T00 = 1/9 * (-2 * Alm(1,:)   + 4 * Slm(1,:));
-            T2m = 1/9 * ( 2 * Alm(2:6,:) + 2 * Slm(2:6,:));
-            T4m = Slm(7:15,:);
-
-% Compute TQ decomposition
-Q00 = 5/9 * Slm(:,:,:,1) + 2/9 * Alm(:,:,:,1) ;
-T00 = 4/9 * Slm(:,:,:,1) - 2/9 * Alm(:,:,:,1) ;
-Q2m = 7/9 * Slm(:,:,:,2:6) - 2/9 * Alm(:,:,:,2:6) ;
-T2m = 2/9 * Slm(:,:,:,2:6) + 2/9 * Alm(:,:,:,2:6) ;
-T4m = Slm(:,:,:,7:15);
-Tlm = cat(4,T00,T2m,T4m);
-Qlm = cat(4,Q00,Q2m);
-
-[norm(Tlm2(:)-Tlm(:)) norm(Qlm2(:)-Qlm(:))]
-IMGUI(Tlm-Tlm2,[-1 1]*1e-6)
-IMGUI(Qlm-Qlm2,[-1 1]*1e-6)
+[Tlm,Qlm] = RICEtools.SA2TQ(Slm,Alm);
 
 %% plot all rotational invariants of D
 clc,close all

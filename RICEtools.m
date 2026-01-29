@@ -15,19 +15,50 @@ classdef RICEtools
     % mask.
     % 
     % ========================== AVAILABLE TOOLS ==========================
-    % - [A_rank2] = Compute_rank2_A_from_rank4_A(A_rank4)
-    % - [A_rank4] = Compute_rank4_A_from_rank2_A(A_rank2)
-    % - [S_cart15,Csym_cart21] = Symmetrize_C_tensor(C_cart)
+    % - [b0, tensor_elems, RICE_maps, DIFF_maps] = fit(DWI, b, dirs, bshape, mask, CSphase, ComplexSTF, type, nls_flag, parallel_flag)
+    % - [S_cart_15,Csym_cart_21] = Symmetrize_C_tensor(C_cart)
     % - [S_cart_21] = Reorganize_S_tensor_15to21_elements(S_cart_15)
-    % - [Y_ell] = get_STF_basis(Lmax,CSphase)
-    % - [Scart] = STF2cart(Slm,CSphase)
-    % - [Slm] = cart2STF(Scart,CSphase)
+    % - [A_rank4] = Compute_rank4_A_from_rank2_A(A_rank2)
+    % - [A_rank2] = Compute_rank2_A_from_rank4_A(A_rank4)
     % - [Bset,B3x3xN] = ConstructAxiallySymmetricB(b,bshape,dirs)
     % - [Bset_2D] = Generate_BijBkl_2Dset(B_tensors)
     % - [dwi] = nlmsmooth(dwi,mask, akc, smoothlevel)
-    % - 
-    % - 
-    % - 
+    % - Ylm_n = evaluate_even_SH(dirs, Lmax, CS_phase, ComplexSTF)
+    % - [Xr, Yr, Zr, phi, theta, Evaluated_Sn] = Evaluate_Slm_in_realSHbasis(slm_real, RES, CSphase)
+    % - DKI_maps = get_DKI_fiberBasis_maps_from_4D_DW_tensors(dt, mask, CSphase, ComplexSTF)
+    % - e1 = get_fiberBasis_from_4D_D_tensor(dt, mask, CSphase, ComplexSTF)
+    % - v1 = get_v1_from_4D_S2m(S2m,mask,CSphase,ComplexSTF,id_vi_4th)
+    % - [s, mask] = vectorize(S, mask)
+    % - dirs = get256dirs()
+    % - dirs = radialsampling(dir, n)        
+    % - WrapperPlotManySlices(ARRAY_4D, slice,clims,names,Nrows,positions,nanTransparent,colorbar_flag)
+    % - y = getY(Lmax) % updated Sept2024 for Racah normalization
+    % - ylmreal = getYreal(L) % updated Sept2024 for Racah normalization
+    % - ylm = getYcomplex(L) % updated Sept2024 for Racah normalization
+    % - Slm = CART2STF(Scart,CSphase,ComplexSTF) % updated Sept2024 for Racah normalization
+    % - Scart = STF2CART(Slm,CSphase,ComplexSTF) % updated Sept2024 for Racah normalization
+    % - S = BuildSTF(Slm,L,CSphase,ComplexSTF) % updated Sept2024 for Racah normalization
+    % - Sflat = flattenTensor(Sarray) % updated Sept2024 for Racah normalization
+    % - Sarray = unflattenTensor(Sflat) % updated Sept2024 for Racah normalization
+    % - [A_6x6, A_21D] = MapRank4_to_6x6(Input,type) % updated Sept2024 for Racah normalization
+    % - [S_cart_15,Csym_cart_21] = reshape_symmetrize_C_cartesian(C_cart_21) % updated Sept2024 for Racah normalization
+    % - [S_cart_21] = reshape_S_from15to21_elements(S_cart_15) % updated Sept2024 for Racah normalization
+    % - A_rank4 = map_Arank2_to_Arank4_cartesian(A_rank2)
+    % - A_rank2 = map_Arank4_to_Arank2_cartesian(A_rank4) % updated Sept2024 for Racah normalization
+    % - [DlmDlm_real] = DlmDlm_complex2real_STF(DlmDlm_complex)
+    % - [Slm,Alm] = TQ2SA(Tlm,Qlm) % updated Sept2024 for Racah normalization
+    % - [Tlm,Qlm] = SA2TQ(Slm,Alm) % updated Sept2024 for Racah normalization
+    % - [DlmDlm, D2mD2m_5x5] = TQ2DD_complexSTF(Tlm,Qlm) % updated Sept2024 for Racah normalization
+    % - [DlmDlm, D2mD2m_5x5] = NumericalDlmDlm(Tlm,Qlm,CSphase,ComplexSTF) % updated Sept2024 for Racah normalization
+    % - [Tlm,Qlm] = DlmDlm_2_TQ(DlmDlm,CSphase,ComplexSTF) % updated Sept2024 for Racah normalization
+    % - Y_ell = get_STF_basis(Lmax,CSphase,ComplexSTF,flattened) % updated Sept2024 for Racah normalization
+    % - S = symmetrizeTensorPartial(T,ids) % updated Sept2024 for Racah normalization
+    % - S = symmetrizeTensor(T) % updated Sept2024 for Racah normalization
+    % - [E_a,lambda_a] = eigTensor_rank4_6x6(s4)
+    % - Rout = GetRotMatBetweenRandRank4Tensors(Rin,S4)
+    % - Sln = compute_symm_tensor_0proj_invariants(Slm, CS_phase, ComplexSTF, n)
+    % - RotationalInvariants = ComputeInvariantsFromCumulants(cumulant,type,mask,CSphase,ComplexSTF)
+    % - RotationalInvariants = ComputeInvariantsFromCumulants_0thproj(cumulant,type,mask,CSphase,ComplexSTF)
     % =====================================================================
     %
     %  Authors: Santiago Coelho (santiago.coelho@nyulangone.org), Els Fieremans, Dmitry Novikov
@@ -1981,6 +2012,15 @@ classdef RICEtools
                 Qlm = repmat(Qlm(:),1,5);
             else
                 only_one_tensor = 0;
+                sz = size(Tlm);
+                if length(sz) == 4
+                    flag_4D = 1;
+                    mask = true(sz(1:3));
+                    Tlm = RICEtools.vectorize(Tlm, mask);
+                    Qlm = RICEtools.vectorize(Qlm, mask);
+                else 
+                    flag_4D = 0;
+                end
             end
             S00 = Qlm(1,:) + Tlm(1,:) ;
             A00 = 2 * Qlm(1,:) - 5/2 * Tlm(1,:) ;
@@ -1992,6 +2032,9 @@ classdef RICEtools
             if only_one_tensor
                 Slm = Slm(:,1);
                 Alm = Alm(:,1);
+            elseif flag_4D
+                Slm = RICEtools.vectorize(Slm, mask);
+                Alm = RICEtools.vectorize(Alm, mask);
             end
         end
         % =================================================================
