@@ -5,8 +5,7 @@
 clc,clear,close all
 
 % Load .mat file with summary statistics
-root = '/Users/coelhs01/Documents/SantiagoCoelho/NYU_Postdoc_MyScience/MATLAB/Projects/RICE_B/';
-% root = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE';
+root = '/Users/coelhs01/Documents/SantiagoCoelho/Git/RICE';
 load(fullfile(root,'RICE_MS_summary_statistics.mat'))
 
 rng default 
