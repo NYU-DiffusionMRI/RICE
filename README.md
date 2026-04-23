@@ -126,9 +126,9 @@ A [US patent](https://patents.google.com/patent/WO2023205506A2/en?q=(santiago+co
 %     below.
 %
 % REFERENCES:
-% - Coelho, S., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in neuroimaging, 2025, Arxiv, https://arxiv.org/abs/2409.03010
+% - Coelho, S., Chen J., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in diffusion MRI, Nature Communications (2026), https://doi.org/10.1038/s41467-026-70018-w
 ```
 
 [^note]:
     Please cite these works if you use the RICE toolbox in your publication:
-    - Coelho, S., Chen J., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in diffusion MRI, 2025, Arxiv, https://arxiv.org/abs/2409.03010
+    - Coelho, S., Chen J., Szczepankiewicz F., Fieremans, E., Novikov, D.S., Geometry of the cumulant series in diffusion MRI, Nature Communications (2026), https://doi.org/10.1038/s41467-026-70018-w
